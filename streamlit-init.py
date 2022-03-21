@@ -37,4 +37,4 @@ fig = go.Figure(data=go.Volume(
     caps= dict(x_show=False, y_show=False, z_show=False), # no caps
     ))
 
-st.pyplot(fig.show())
+st.pyplot(fig)
