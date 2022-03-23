@@ -1,5 +1,0 @@
-scikit_learn 
-numpy
-streamlit
-tensorflow
-tfutil
