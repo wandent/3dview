@@ -1,0 +1,11 @@
+# make sure the azure cli is up-to-date and the extension is properly installed
+az upgrade
+az extension add --name ml
+
+# login to the right tenant
+az login --tenant 5b6f6241-9a57-4be4-8e50-1dfa72e79a57
+
+# submit the job
+az ml job create --file job.yml --web --resource-group rg-dev-geog-eastus --workspace-name mlw-dev-geog-01
+
+
