@@ -60,6 +60,19 @@ az login --tenant 5b6f6241-9a57-4be4-8e50-1dfa72e79a57
 
 [MLOps Towards AI](https://towardsai.net/p/l/what-is-mlops)
 
+[TRigger Machine Learning Workflows based on Events](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-use-event-grid)
+
+[Integration with Power BI](https://docs.microsoft.com/en-us/power-bi/transform-model/dataflows/dataflows-machine-learning-integration)
+
+
+[Azure ML Extension](https://marketplace.visualstudio.com/items?itemName=ms-air-aiagility.vss-services-azureml)
+
+[CI/CD with Azure Pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/targets/azure-machine-learning)
+
+[MLOps Repository](https://github.com/Microsoft/MLOps)
+
+[MLOps Python repo](https://github.com/Microsoft/MLOpspython)
+
 ### MLFlow
 
 [MLFlow](https://mlflow.org/)

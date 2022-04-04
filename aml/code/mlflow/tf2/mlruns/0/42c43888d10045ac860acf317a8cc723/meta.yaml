@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/temp/mlflow/examples/tensorflow/tf2/mlruns/0/42c43888d10045ac860acf317a8cc723/artifacts
+end_time: 1648755297690
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: 42c43888d10045ac860acf317a8cc723
+run_uuid: 42c43888d10045ac860acf317a8cc723
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1648755257983
+status: 3
+tags: []
+user_id: wandent
