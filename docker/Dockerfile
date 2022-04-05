@@ -28,7 +28,7 @@ RUN pip install imageio
 RUN pip install imageio-ffmpeg==0.4.3
 RUN pip install ipywidgets
 
-
+# az acr build --image sample/testgeogan:v1 --registry acrmldemo001 --file dockerfile .
 
 # RUN python setup.py install
 #RUN conda install -c conda-forge --file requirements.txt
