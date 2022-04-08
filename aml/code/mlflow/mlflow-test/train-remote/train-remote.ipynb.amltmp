@@ -1,0 +1,397 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Copyright (c) Microsoft Corporation. All rights reserved.\n",
+        "\n",
+        "Licensed under the MIT License."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "![Impressions](https://PixelServer20190423114238.azurewebsites.net/api/impressions/NotebookVM/how-to-use-azureml/track-and-monitor-experiments/using-mlflow/train-remote/train-remote.png)"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Use MLflow with Azure Machine Learning for Remote Training Run\n",
+        "\n",
+        "This example shows you how to use MLflow tracking APIs together with Azure Machine Learning services for storing your metrics and artifacts, from local Notebook run. You'll learn how to:\n",
+        "\n",
+        " 1. Set up MLflow tracking URI so as to use Azure ML\n",
+        " 2. Create experiment\n",
+        " 3. Train a model on Machine Learning Compute while logging metrics and artifacts\n",
+        " 4. View your experiment within your Azure ML Workspace in Azure Portal."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Prerequisites\n",
+        "\n",
+        "Make sure you have completed the [Configuration](../../../configuration.ipnyb) notebook to set up your Azure Machine Learning workspace and ensure other common prerequisites are met."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Set-up\n",
+        "\n",
+        "Check Azure ML SDK version installed on your computer, and then connect to your Workspace."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Check core SDK version number\n",
+        "import azureml.core\n",
+        "from azureml.core import Workspace, Experiment\n",
+        "\n",
+        "print(\"SDK version:\", azureml.core.VERSION)\n",
+        "\n",
+        "ws = Workspace.from_config()"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "SDK version: 1.39.0\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "gather": {
+          "logged": 1649087769862
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Let's also create a Machine Learning Compute cluster for submitting the remote run. \n",
+        "\n",
+        "> Note that if you have an AzureML Data Scientist role, you will not have permission to create compute resources. Talk to your workspace or IT admin to create the compute targets described in this section, if they do not already exist."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core.compute import ComputeTarget, AmlCompute\n",
+        "from azureml.core.compute_target import ComputeTargetException\n",
+        "\n",
+        "# Choose a name for your CPU cluster\n",
+        "cluster_name = \"cpu-cluster\"\n",
+        "\n",
+        "# Verify that cluster does not exist already\n",
+        "try:\n",
+        "    cpu_cluster = ComputeTarget(workspace=ws, name=cluster_name)\n",
+        "    print(\"Found existing cpu-cluster\")\n",
+        "except ComputeTargetException:\n",
+        "    print(\"Creating new cpu-cluster\")\n",
+        "    \n",
+        "    # Specify the configuration for the new cluster\n",
+        "    compute_config = AmlCompute.provisioning_configuration(vm_size=\"STANDARD_D2_V2\",\n",
+        "                                                           min_nodes=0,\n",
+        "                                                           max_nodes=2)\n",
+        "\n",
+        "    # Create the cluster with the specified name and configuration\n",
+        "    cpu_cluster = ComputeTarget.create(ws, cluster_name, compute_config)\n",
+        "    \n",
+        "    # Wait for the cluster to complete, show the output log\n",
+        "    cpu_cluster.wait_for_completion(show_output=True)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Creating new cpu-cluster\nInProgress.\nSucceededProvisioning operation finished, operation \"Succeeded\"\nSucceeded\nAmlCompute wait for completion finished\n\nMinimum number of nodes requested have been provisioned\n"
+        }
+      ],
+      "execution_count": 2,
+      "metadata": {
+        "gather": {
+          "logged": 1649087782841
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Create Azure ML Experiment"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "The following steps show how to submit a training Python script to a cluster as an Azure ML run, while logging happens through MLflow APIs to your Azure ML Workspace. Let's first create an experiment to hold the training runs."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import Experiment\n",
+        "\n",
+        "experiment_name = \"RemoteTrain-with-mlflow-sample\"\n",
+        "exp = Experiment(workspace=ws, name=experiment_name)"
+      ],
+      "outputs": [],
+      "execution_count": 3,
+      "metadata": {
+        "gather": {
+          "logged": 1649087796301
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Instrument remote training script using MLflow"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Let's use [*train_diabetes.py*](train_diabetes.py) to train a regression model against diabetes dataset as the example. Note that the training script uses mlflow.start_run() to start logging, and then logs metrics, saves the trained scikit-learn model, and saves a plot as an artifact.\n",
+        "\n",
+        "Run following command to view the script file. Notice the mlflow logging statements, and also notice that the script doesn't have explicit dependencies on azureml library."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "training_script = 'train_diabetes.py'\n",
+        "with open(training_script, 'r') as f:\n",
+        "    print(f.read())"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "# Copyright (c) Microsoft. All rights reserved.\n# Licensed under the MIT license.\n\nimport matplotlib.pyplot as plt\nimport numpy as np\nfrom sklearn.datasets import load_diabetes\nfrom sklearn.linear_model import Ridge\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.model_selection import train_test_split\nimport mlflow\nimport mlflow.sklearn\n\nimport matplotlib\nmatplotlib.use('Agg')\n\nwith mlflow.start_run():\n    X, y = load_diabetes(return_X_y=True)\n    columns = ['age', 'gender', 'bmi', 'bp', 's1', 's2', 's3', 's4', 's5', 's6']\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)\n    data = {\n        \"train\": {\"X\": X_train, \"y\": y_train},\n        \"test\": {\"X\": X_test, \"y\": y_test}}\n\n    mlflow.log_metric(\"Training samples\", len(data['train']['X']))\n    mlflow.log_metric(\"Test samples\", len(data['test']['X']))\n\n    # Log the algorithm parameter alpha to the run\n    mlflow.log_metric('alpha', 0.03)\n    # Create, fit, and test the scikit-learn Ridge regression model\n    regression_model = Ridge(alpha=0.03)\n    regression_model.fit(data['train']['X'], data['train']['y'])\n    preds = regression_model.predict(data['test']['X'])\n\n    # Log mean squared error\n    print('Mean Squared Error is', mean_squared_error(data['test']['y'], preds))\n    mlflow.log_metric('mse', mean_squared_error(data['test']['y'], preds))\n\n    # Save the model to the outputs directory for capture\n    mlflow.sklearn.log_model(regression_model, \"model\")\n\n    # Plot actuals vs predictions and save the plot within the run\n    fig = plt.figure(1)\n    idx = np.argsort(data['test']['y'])\n    plt.plot(data['test']['y'][idx], preds[idx])\n    fig.savefig(\"actuals_vs_predictions.png\")\n    mlflow.log_artifact(\"actuals_vs_predictions.png\")\n\n"
+        }
+      ],
+      "execution_count": 4,
+      "metadata": {
+        "gather": {
+          "logged": 1649087808191
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Submit Run to Cluster \n",
+        "\n",
+        "Let's submit the run to cluster. When running on the remote cluster as submitted run, Azure ML sets the MLflow tracking URI to point to your Azure ML Workspace, so that the metrics and artifacts are automatically logged there.\n",
+        "\n",
+        "Note that you have to specify the packages your script depends on, including *azureml-mlflow* that implicitly enables the MLflow logging to Azure ML. \n",
+        "\n",
+        "First, create a environment with Docker enable and required package dependencies specified."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import Environment\n",
+        "from azureml.core.conda_dependencies import CondaDependencies\n",
+        "\n",
+        "env = Environment(name=\"mlflow-env\")\n",
+        "\n",
+        "# Specify conda dependencies with scikit-learn and temporary pointers to mlflow extensions\n",
+        "cd = CondaDependencies.create(\n",
+        "    conda_packages=[\"scikit-learn\", \"matplotlib\"],\n",
+        "    pip_packages=[\"azureml-mlflow\", \"pandas\", \"numpy\"]\n",
+        "    )\n",
+        "\n",
+        "env.python.conda_dependencies = cd"
+      ],
+      "outputs": [],
+      "execution_count": 5,
+      "metadata": {
+        "tags": [
+          "mlflow"
+        ],
+        "gather": {
+          "logged": 1649087819465
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Next, specify a script run configuration that includes the training script, environment and CPU cluster created earlier."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import ScriptRunConfig\n",
+        "\n",
+        "src = ScriptRunConfig(source_directory=\".\",\n",
+        "                      script=training_script,\n",
+        "                      compute_target=cpu_cluster,\n",
+        "                      environment=env)"
+      ],
+      "outputs": [],
+      "execution_count": 6,
+      "metadata": {
+        "gather": {
+          "logged": 1649087828051
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Finally, submit the run. Note that the first instance of the run typically takes longer as the Docker-based environment is created, several minutes. Subsequent runs reuse the image and are faster."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "run = exp.submit(src)\n",
+        "run.wait_for_completion(show_output=True)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "RunId: RemoteTrain-with-mlflow-sample_1649087834_c31045ec\nWeb View: https://ml.azure.com/runs/RemoteTrain-with-mlflow-sample_1649087834_c31045ec?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\n\nStreaming azureml-logs/20_image_build_log.txt\n=============================================\n\n"
+        }
+      ],
+      "execution_count": 7,
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "You can navigate to your Azure ML Workspace at Azure Portal to view the run metrics and artifacts. "
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "run"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "You can also get the metrics and bring them to your local notebook, and view the details of the run."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "run.get_metrics()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "run.get_details()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "### Next steps\n",
+        "\n",
+        " * [Deploy the model as a web service](../deploy-model/deploy-model.ipynb)\n",
+        " * [Learn more about Azure Machine Learning compute options](https://docs.microsoft.com/en-us/azure/machine-learning/service/how-to-set-up-training-targets)"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {}
+    }
+  ],
+  "metadata": {
+    "index_order": 8,
+    "exclude_from_index": false,
+    "task": "Use MLflow tracking APIs together with AML for storing your metrics and artifacts",
+    "deployment": [
+      "None"
+    ],
+    "authors": [
+      {
+        "name": "sanpil"
+      }
+    ],
+    "kernel_info": {
+      "name": "python38-azureml"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.5",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "compute": [
+      "AML Compute"
+    ],
+    "kernelspec": {
+      "name": "python38-azureml",
+      "language": "python",
+      "display_name": "Python 3.8 - AzureML"
+    },
+    "tags": [
+      "None"
+    ],
+    "datasets": [
+      "Diabetes"
+    ],
+    "categories": [
+      "how-to-use-azureml",
+      "track-and-monitor-experiments",
+      "using-mlflow"
+    ],
+    "category": "training",
+    "framework": [
+      "None"
+    ],
+    "friendly_name": "Use MLflow with AML for a remote training run",
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

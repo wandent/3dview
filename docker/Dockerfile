@@ -28,10 +28,10 @@ RUN pip install imageio
 RUN pip install imageio-ffmpeg==0.4.3
 RUN pip install ipywidgets
 
-# az acr build --image sample/testgeogan:v1 --registry acrmldemo001 --file dockerfile .
+# az acr build --image sample/testgeogan:v1 --registry crdevgeogmlw --file dockerfile .
 
 # RUN python setup.py install
 #RUN conda install -c conda-forge --file requirements.txt
 #EXPOSE 5000
 #CMD python run.py
-#docker build --no-cache --rm -t crdevmlwgeog.azurecr.io/geog/enviroment:v0.7 "."ls
+#docker build --no-cache --rm -t crdevgeogmlw.azurecr.io/geog/enviroment:v0.7 "."ls
