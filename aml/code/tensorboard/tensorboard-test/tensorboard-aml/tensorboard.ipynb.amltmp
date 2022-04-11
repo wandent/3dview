@@ -58,6 +58,9 @@
       "metadata": {
         "gather": {
           "logged": 1649088114180
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -78,7 +81,11 @@
         }
       ],
       "execution_count": 18,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -109,7 +116,10 @@
         },
         "tags": [
           "Diagnostics"
-        ]
+        ],
+        "vscode": {
+          "languageId": "python"
+        }
       }
     },
     {
@@ -143,6 +153,9 @@
       "metadata": {
         "gather": {
           "logged": 1649098391376
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -174,6 +187,9 @@
       "metadata": {
         "gather": {
           "logged": 1649098392169
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -206,6 +222,9 @@
       "metadata": {
         "gather": {
           "logged": 1649098397062
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -236,6 +255,9 @@
       "metadata": {
         "gather": {
           "logged": 1649098419217
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -278,6 +300,9 @@
       "metadata": {
         "gather": {
           "logged": 1649098430075
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -323,7 +348,10 @@
         },
         "tags": [
           "tensorboard-sample"
-        ]
+        ],
+        "vscode": {
+          "languageId": "python"
+        }
       }
     },
     {
@@ -345,6 +373,9 @@
       "metadata": {
         "gather": {
           "logged": 1649088401014
+        },
+        "vscode": {
+          "languageId": "python"
         }
       }
     },
@@ -394,7 +425,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -427,7 +462,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -449,7 +488,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -467,7 +510,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -514,7 +561,11 @@
         }
       ],
       "execution_count": 19,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -553,7 +604,11 @@
         }
       ],
       "execution_count": 20,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -594,7 +649,11 @@
         }
       ],
       "execution_count": 21,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -612,7 +671,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -635,7 +698,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     },
     {
       "cell_type": "markdown",
@@ -653,7 +720,11 @@
       ],
       "outputs": [],
       "execution_count": null,
-      "metadata": {}
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
     }
   ],
   "metadata": {
@@ -669,7 +740,7 @@
       }
     ],
     "kernel_info": {
-      "name": "python3"
+      "name": "azureml_py38_pt_tf"
     },
     "language_info": {
       "name": "python",
@@ -689,9 +760,9 @@
       "AML Compute"
     ],
     "kernelspec": {
-      "name": "python3",
+      "name": "azureml_py38_pt_tf",
       "language": "python",
-      "display_name": "Python 3"
+      "display_name": "Python 3.8 - Pytorch and Tensorflow"
     },
     "tags": [
       "None"

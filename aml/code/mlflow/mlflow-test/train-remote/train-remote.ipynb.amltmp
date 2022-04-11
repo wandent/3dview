@@ -63,13 +63,13 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "SDK version: 1.39.0\n"
+          "text": "SDK version: 1.40.0\n"
         }
       ],
-      "execution_count": 1,
+      "execution_count": 12,
       "metadata": {
         "gather": {
-          "logged": 1649087769862
+          "logged": 1649699654013
         }
       }
     },
@@ -111,15 +111,39 @@
       ],
       "outputs": [
         {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "Creating new cpu-cluster\nInProgress.\nSucceededProvisioning operation finished, operation \"Succeeded\"\nSucceeded\nAmlCompute wait for completion finished\n\nMinimum number of nodes requested have been provisioned\n"
+          "output_type": "error",
+          "ename": "KeyboardInterrupt",
+          "evalue": "",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mKeyboardInterrupt\u001b[0m                         Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-11-23788c64b3f6>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m      7\u001b[0m \u001b[0;31m# Verify that cluster does not exist already\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      8\u001b[0m \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m----> 9\u001b[0;31m     \u001b[0mcpu_cluster\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mComputeTarget\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mworkspace\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mws\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mname\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mcluster_name\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     10\u001b[0m     \u001b[0mprint\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"Found existing cpu-cluster\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     11\u001b[0m \u001b[0;32mexcept\u001b[0m \u001b[0mComputeTargetException\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/azureml/core/compute/compute.py\u001b[0m in \u001b[0;36m__new__\u001b[0;34m(cls, workspace, name)\u001b[0m\n\u001b[1;32m     69\u001b[0m         \"\"\"\n\u001b[1;32m     70\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mworkspace\u001b[0m \u001b[0;32mand\u001b[0m \u001b[0mname\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 71\u001b[0;31m             \u001b[0mcompute_payload\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcls\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_get\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mworkspace\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mname\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     72\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mcompute_payload\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     73\u001b[0m                 \u001b[0mcompute_type\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mcompute_payload\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'properties'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'computeType'\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/azureml/core/compute/compute.py\u001b[0m in \u001b[0;36m_get\u001b[0;34m(workspace, name)\u001b[0m\n\u001b[1;32m    275\u001b[0m         \u001b[0mComputeTarget\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_add_request_tracking_headers\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mheaders\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    276\u001b[0m         \u001b[0mparams\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;34m{\u001b[0m\u001b[0;34m'api-version'\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mMLC_WORKSPACE_API_VERSION\u001b[0m\u001b[0;34m}\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 277\u001b[0;31m         \u001b[0mresp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mClientBase\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_execute_func\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mget_requests_session\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mget\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mendpoint\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mparams\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mparams\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mheaders\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mheaders\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    278\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mresp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mstatus_code\u001b[0m \u001b[0;34m==\u001b[0m \u001b[0;36m200\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    279\u001b[0m             \u001b[0mcontent\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mresp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcontent\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/azureml/_restclient/clientbase.py\u001b[0m in \u001b[0;36m_execute_func\u001b[0;34m(cls, func, *args, **kwargs)\u001b[0m\n\u001b[1;32m    372\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_execute_func\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcls\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mfunc\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    373\u001b[0m         \u001b[0;31m# reset the backoff from 32 seconds to 1 second\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 374\u001b[0;31m         return cls._execute_func_internal(\n\u001b[0m\u001b[1;32m    375\u001b[0m             DEFAULT_SHORT_BACKOFF, DEFAULT_RETRIES, module_logger, func, _noop_reset, *args, **kwargs)\n\u001b[1;32m    376\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/azureml/_restclient/clientbase.py\u001b[0m in \u001b[0;36m_execute_func_internal\u001b[0;34m(cls, back_off, total_retry, logger, func, reset_func, *args, **kwargs)\u001b[0m\n\u001b[1;32m    356\u001b[0m             \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    357\u001b[0m                 \u001b[0mlogger\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mdebug\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"ClientBase: Calling {} with url {}\"\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mformat\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mfunc_name\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mfunc_url\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 358\u001b[0;31m                 \u001b[0mresponse\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mfunc\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    359\u001b[0m                 if (isinstance(response, Response) and cls._is_retryable_status_code(response.status_code)\n\u001b[1;32m    360\u001b[0m                         and left_retry > 0):\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/requests/sessions.py\u001b[0m in \u001b[0;36mget\u001b[0;34m(self, url, **kwargs)\u001b[0m\n\u001b[1;32m    540\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    541\u001b[0m         \u001b[0mkwargs\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msetdefault\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'allow_redirects'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;32mTrue\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 542\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrequest\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'GET'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0murl\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    543\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    544\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0moptions\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0murl\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/requests/sessions.py\u001b[0m in \u001b[0;36mrequest\u001b[0;34m(self, method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects, proxies, hooks, stream, verify, cert, json)\u001b[0m\n\u001b[1;32m    527\u001b[0m         }\n\u001b[1;32m    528\u001b[0m         \u001b[0msend_kwargs\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mupdate\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0msettings\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 529\u001b[0;31m         \u001b[0mresp\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mprep\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0msend_kwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    530\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    531\u001b[0m         \u001b[0;32mreturn\u001b[0m \u001b[0mresp\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/requests/sessions.py\u001b[0m in \u001b[0;36msend\u001b[0;34m(self, request, **kwargs)\u001b[0m\n\u001b[1;32m    643\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    644\u001b[0m         \u001b[0;31m# Send the request\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 645\u001b[0;31m         \u001b[0mr\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0madapter\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0msend\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mrequest\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    646\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    647\u001b[0m         \u001b[0;31m# Total elapsed time of the request (approximately)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/requests/adapters.py\u001b[0m in \u001b[0;36msend\u001b[0;34m(self, request, stream, timeout, verify, cert, proxies)\u001b[0m\n\u001b[1;32m    438\u001b[0m         \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    439\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0mchunked\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 440\u001b[0;31m                 resp = conn.urlopen(\n\u001b[0m\u001b[1;32m    441\u001b[0m                     \u001b[0mmethod\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mrequest\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mmethod\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    442\u001b[0m                     \u001b[0murl\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0murl\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/urllib3/connectionpool.py\u001b[0m in \u001b[0;36murlopen\u001b[0;34m(self, method, url, body, headers, retries, redirect, assert_same_host, timeout, pool_timeout, release_conn, chunked, body_pos, **response_kw)\u001b[0m\n\u001b[1;32m    697\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    698\u001b[0m             \u001b[0;31m# Make the request on the httplib connection object.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 699\u001b[0;31m             httplib_response = self._make_request(\n\u001b[0m\u001b[1;32m    700\u001b[0m                 \u001b[0mconn\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    701\u001b[0m                 \u001b[0mmethod\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/urllib3/connectionpool.py\u001b[0m in \u001b[0;36m_make_request\u001b[0;34m(self, conn, method, url, timeout, chunked, **httplib_request_kw)\u001b[0m\n\u001b[1;32m    443\u001b[0m                     \u001b[0;31m# Python 3 (including for exceptions like SystemExit).\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    444\u001b[0m                     \u001b[0;31m# Otherwise it looks like a bug in the code.\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 445\u001b[0;31m                     \u001b[0msix\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mraise_from\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0me\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    446\u001b[0m         \u001b[0;32mexcept\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mSocketTimeout\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mBaseSSLError\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mSocketError\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0me\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    447\u001b[0m             \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_raise_timeout\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0merr\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0me\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0murl\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0murl\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mtimeout_value\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0mread_timeout\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/urllib3/packages/six.py\u001b[0m in \u001b[0;36mraise_from\u001b[0;34m(value, from_value)\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/site-packages/urllib3/connectionpool.py\u001b[0m in \u001b[0;36m_make_request\u001b[0;34m(self, conn, method, url, timeout, chunked, **httplib_request_kw)\u001b[0m\n\u001b[1;32m    438\u001b[0m                 \u001b[0;31m# Python 3\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    439\u001b[0m                 \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 440\u001b[0;31m                     \u001b[0mhttplib_response\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mconn\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mgetresponse\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    441\u001b[0m                 \u001b[0;32mexcept\u001b[0m \u001b[0mBaseException\u001b[0m \u001b[0;32mas\u001b[0m \u001b[0me\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    442\u001b[0m                     \u001b[0;31m# Remove the TypeError from the exception chain in\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/http/client.py\u001b[0m in \u001b[0;36mgetresponse\u001b[0;34m(self)\u001b[0m\n\u001b[1;32m   1345\u001b[0m         \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1346\u001b[0m             \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1347\u001b[0;31m                 \u001b[0mresponse\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mbegin\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1348\u001b[0m             \u001b[0;32mexcept\u001b[0m \u001b[0mConnectionError\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1349\u001b[0m                 \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mclose\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/http/client.py\u001b[0m in \u001b[0;36mbegin\u001b[0;34m(self)\u001b[0m\n\u001b[1;32m    305\u001b[0m         \u001b[0;31m# read until we get a non-100 response\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    306\u001b[0m         \u001b[0;32mwhile\u001b[0m \u001b[0;32mTrue\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 307\u001b[0;31m             \u001b[0mversion\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mstatus\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mreason\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_read_status\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    308\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mstatus\u001b[0m \u001b[0;34m!=\u001b[0m \u001b[0mCONTINUE\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    309\u001b[0m                 \u001b[0;32mbreak\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/http/client.py\u001b[0m in \u001b[0;36m_read_status\u001b[0;34m(self)\u001b[0m\n\u001b[1;32m    266\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    267\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_read_status\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 268\u001b[0;31m         \u001b[0mline\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mstr\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mreadline\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0m_MAXLINE\u001b[0m \u001b[0;34m+\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m\"iso-8859-1\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    269\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0mlen\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mline\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m>\u001b[0m \u001b[0m_MAXLINE\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    270\u001b[0m             \u001b[0;32mraise\u001b[0m \u001b[0mLineTooLong\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"status line\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/socket.py\u001b[0m in \u001b[0;36mreadinto\u001b[0;34m(self, b)\u001b[0m\n\u001b[1;32m    667\u001b[0m         \u001b[0;32mwhile\u001b[0m \u001b[0;32mTrue\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    668\u001b[0m             \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 669\u001b[0;31m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_sock\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrecv_into\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mb\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    670\u001b[0m             \u001b[0;32mexcept\u001b[0m \u001b[0mtimeout\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    671\u001b[0m                 \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_timeout_occurred\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;32mTrue\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/ssl.py\u001b[0m in \u001b[0;36mrecv_into\u001b[0;34m(self, buffer, nbytes, flags)\u001b[0m\n\u001b[1;32m   1239\u001b[0m                   \u001b[0;34m\"non-zero flags not allowed in calls to recv_into() on %s\"\u001b[0m \u001b[0;34m%\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1240\u001b[0m                   self.__class__)\n\u001b[0;32m-> 1241\u001b[0;31m             \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mnbytes\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mbuffer\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1242\u001b[0m         \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1243\u001b[0m             \u001b[0;32mreturn\u001b[0m \u001b[0msuper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrecv_into\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mbuffer\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mnbytes\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mflags\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;32m/anaconda/envs/azureml_py38_PT_TF/lib/python3.8/ssl.py\u001b[0m in \u001b[0;36mread\u001b[0;34m(self, len, buffer)\u001b[0m\n\u001b[1;32m   1097\u001b[0m         \u001b[0;32mtry\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1098\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mbuffer\u001b[0m \u001b[0;32mis\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 1099\u001b[0;31m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_sslobj\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mbuffer\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   1100\u001b[0m             \u001b[0;32melse\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   1101\u001b[0m                 \u001b[0;32mreturn\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_sslobj\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mlen\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+            "\u001b[0;31mKeyboardInterrupt\u001b[0m: "
+          ]
         }
       ],
-      "execution_count": 2,
+      "execution_count": 11,
       "metadata": {
         "gather": {
-          "logged": 1649087782841
+          "logged": 1649699636322
         }
       }
     },
@@ -146,10 +170,10 @@
         "exp = Experiment(workspace=ws, name=experiment_name)"
       ],
       "outputs": [],
-      "execution_count": 3,
+      "execution_count": 13,
       "metadata": {
         "gather": {
-          "logged": 1649087796301
+          "logged": 1649699673195
         }
       }
     },
@@ -183,10 +207,10 @@
           "text": "# Copyright (c) Microsoft. All rights reserved.\n# Licensed under the MIT license.\n\nimport matplotlib.pyplot as plt\nimport numpy as np\nfrom sklearn.datasets import load_diabetes\nfrom sklearn.linear_model import Ridge\nfrom sklearn.metrics import mean_squared_error\nfrom sklearn.model_selection import train_test_split\nimport mlflow\nimport mlflow.sklearn\n\nimport matplotlib\nmatplotlib.use('Agg')\n\nwith mlflow.start_run():\n    X, y = load_diabetes(return_X_y=True)\n    columns = ['age', 'gender', 'bmi', 'bp', 's1', 's2', 's3', 's4', 's5', 's6']\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)\n    data = {\n        \"train\": {\"X\": X_train, \"y\": y_train},\n        \"test\": {\"X\": X_test, \"y\": y_test}}\n\n    mlflow.log_metric(\"Training samples\", len(data['train']['X']))\n    mlflow.log_metric(\"Test samples\", len(data['test']['X']))\n\n    # Log the algorithm parameter alpha to the run\n    mlflow.log_metric('alpha', 0.03)\n    # Create, fit, and test the scikit-learn Ridge regression model\n    regression_model = Ridge(alpha=0.03)\n    regression_model.fit(data['train']['X'], data['train']['y'])\n    preds = regression_model.predict(data['test']['X'])\n\n    # Log mean squared error\n    print('Mean Squared Error is', mean_squared_error(data['test']['y'], preds))\n    mlflow.log_metric('mse', mean_squared_error(data['test']['y'], preds))\n\n    # Save the model to the outputs directory for capture\n    mlflow.sklearn.log_model(regression_model, \"model\")\n\n    # Plot actuals vs predictions and save the plot within the run\n    fig = plt.figure(1)\n    idx = np.argsort(data['test']['y'])\n    plt.plot(data['test']['y'][idx], preds[idx])\n    fig.savefig(\"actuals_vs_predictions.png\")\n    mlflow.log_artifact(\"actuals_vs_predictions.png\")\n\n"
         }
       ],
-      "execution_count": 4,
+      "execution_count": 14,
       "metadata": {
         "gather": {
-          "logged": 1649087808191
+          "logged": 1649699676151
         }
       }
     },
@@ -220,14 +244,14 @@
         "env.python.conda_dependencies = cd"
       ],
       "outputs": [],
-      "execution_count": 5,
+      "execution_count": 15,
       "metadata": {
+        "gather": {
+          "logged": 1649699686326
+        },
         "tags": [
           "mlflow"
-        ],
-        "gather": {
-          "logged": 1649087819465
-        }
+        ]
       }
     },
     {
@@ -241,17 +265,17 @@
       "cell_type": "code",
       "source": [
         "from azureml.core import ScriptRunConfig\n",
-        "\n",
+        "cpu_cluster = ComputeTarget(workspace=ws, name=\"cpu-cluster\")\n",
         "src = ScriptRunConfig(source_directory=\".\",\n",
         "                      script=training_script,\n",
         "                      compute_target=cpu_cluster,\n",
         "                      environment=env)"
       ],
       "outputs": [],
-      "execution_count": 6,
+      "execution_count": 16,
       "metadata": {
         "gather": {
-          "logged": 1649087828051
+          "logged": 1649699751353
         }
       }
     },
@@ -272,10 +296,10 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "RunId: RemoteTrain-with-mlflow-sample_1649087834_c31045ec\nWeb View: https://ml.azure.com/runs/RemoteTrain-with-mlflow-sample_1649087834_c31045ec?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\n\nStreaming azureml-logs/20_image_build_log.txt\n=============================================\n\n"
+          "text": "RunId: RemoteTrain-with-mlflow-sample_1649699756_ecaefde2\nWeb View: https://ml.azure.com/runs/RemoteTrain-with-mlflow-sample_1649699756_ecaefde2?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\n\nStreaming azureml-logs/20_image_build_log.txt\n=============================================\n\n"
         }
       ],
-      "execution_count": 7,
+      "execution_count": 17,
       "metadata": {}
     },
     {
@@ -350,7 +374,7 @@
       }
     ],
     "kernel_info": {
-      "name": "python38-azureml"
+      "name": "azureml_py38_pt_tf"
     },
     "language_info": {
       "name": "python",
@@ -368,13 +392,16 @@
       "AML Compute"
     ],
     "kernelspec": {
-      "name": "python38-azureml",
+      "name": "azureml_py38_pt_tf",
       "language": "python",
-      "display_name": "Python 3.8 - AzureML"
+      "display_name": "Python 3.8 - Pytorch and Tensorflow"
     },
     "tags": [
       "None"
     ],
+    "interpreter": {
+      "hash": "9f0194299e911b6a22f0cd3d1c9a66c991d39f48b249be23f24104e40900e329"
+    },
     "datasets": [
       "Diabetes"
     ],
