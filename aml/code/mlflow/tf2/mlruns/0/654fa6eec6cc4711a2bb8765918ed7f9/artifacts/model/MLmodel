@@ -1,3 +1,19 @@
+<<<<<<< HEAD:aml/code/mlflow/tf2/mlruns/0/062a4791c35a40939db086b2db706ecf/artifacts/model/MLmodel
+artifact_path: model
+flavors:
+  python_function:
+    env: conda.yaml
+    loader_module: mlflow.tensorflow
+    python_version: 3.7.12
+  tensorflow:
+    meta_graph_tags:
+    - serve
+    saved_model_dir: tfmodel
+    signature_def_key: predict
+model_uuid: cedc6c03bb6f4ca5839c12908aa1fc29
+run_id: 062a4791c35a40939db086b2db706ecf
+utc_time_created: '2022-03-31 19:31:55.372409'
+=======
 artifact_path: model
 flavors:
   python_function:
@@ -12,3 +28,4 @@ flavors:
 model_uuid: 51e843efc26848578ad52df9c95c4844
 run_id: 654fa6eec6cc4711a2bb8765918ed7f9
 utc_time_created: '2022-04-04 15:21:28.696713'
+>>>>>>> 00b028d5c6914e27bd78491737024c83fb7d5276:aml/code/mlflow/tf2/mlruns/0/654fa6eec6cc4711a2bb8765918ed7f9/artifacts/model/MLmodel
