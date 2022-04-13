@@ -296,7 +296,7 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "RunId: RemoteTrain-with-mlflow-sample_1649699756_ecaefde2\nWeb View: https://ml.azure.com/runs/RemoteTrain-with-mlflow-sample_1649699756_ecaefde2?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\n\nStreaming azureml-logs/20_image_build_log.txt\n=============================================\n\n"
+          "text": "RunId: RemoteTrain-with-mlflow-sample_1649699756_ecaefde2\nWeb View: https://ml.azure.com/runs/RemoteTrain-with-mlflow-sample_1649699756_ecaefde2?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\n\nStreaming azureml-logs/20_image_build_log.txt\n=============================================\n\n======Starting Image Build on Compute======\nThe run ID for the image build on compute is imgbldrun_deb2ef2\n"
         }
       ],
       "execution_count": 17,

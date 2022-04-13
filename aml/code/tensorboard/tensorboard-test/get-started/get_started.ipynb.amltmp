@@ -32,23 +32,11 @@
       }
     },
     {
-      "cell_type": "code",
+      "cell_type": "markdown",
       "source": [
         "!printenv"
       ],
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": "MSI_ENDPOINT=http://127.0.1.1:46808/MSI/auth\r\nLANG=C.UTF-8\r\nMSI_SECRET_JOB=SGJ7dMpMjlnLAh77hPbc\r\nINVOCATION_ID=d93d4daaf414419fa24306b7da115e0f\r\nCI_RESOURCE_GROUP=rg-dev-geog-eastus\r\nOBO_ENDPOINT=http://127.0.1.1:46808/OBO/token\r\nTF2_BEHAVIOR=1\r\nUSER=azureuser\r\nAML_CloudName=AzureCloud\r\nPAGER=cat\r\nCI_WORKSPACE=mlw-dev-geog-01\r\nMKL_THREADING_LAYER=GNU\r\nJPY_PARENT_PID=6585\r\nPWD=/mnt/batch/tasks/shared/LS_root/mounts/clusters/wandent-msft2/code/Users/wandent/tensorboard-test/get-started\r\nHOME=/home/azureuser\r\nJOURNAL_STREAM=9:61960\r\nCLICOLOR=1\r\nDEFAULT_IDENTITY_CLIENT_ID=clientid\r\nAPPSETTING_WEBSITE_SITE_NAME=AMLComputeInstance\r\nCI_NAME=wandent-msft2\r\nTERM=xterm-color\r\nSHELL=/bin/bash\r\nMPLBACKEND=module://ipykernel.pylab.backend_inline\r\nMSI_SECRET=qGIJNadZBowAzPltYIGf\r\nSHLVL=1\r\nCI_LOCAL_UBUNTU_USER=azureuser\r\nGIT_PYTHON_REFRESH=quiet\r\nLOGNAME=azureuser\r\nMLFLOW_TRACKING_URI=azureml://eastus.api.azureml.ms/mlflow/v1.0/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourceGroups/rg-dev-geog-eastus/providers/Microsoft.MachineLearningServices/workspaces/mlw-dev-geog-01\r\nENABLE_MLFLOW_AUTOLOG=false\r\nPATH=/anaconda/envs/azureml_py36/bin/:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin\r\nGIT_PAGER=cat\r\n_=/usr/bin/printenv\r\n"
-        }
-      ],
-      "execution_count": 26,
       "metadata": {
-        "jupyter": {
-          "source_hidden": false,
-          "outputs_hidden": false
-        },
         "nteract": {
           "transient": {
             "deleting": false
@@ -148,15 +136,34 @@
     {
       "cell_type": "code",
       "source": [
+        "from azureml.core import Experiment, Workspace, Run\n",
         "import tensorflow as tf\n",
-        "import datetime"
+        "import datetime\n",
+        "ws = Workspace.from_config()\n",
+        "print('Workspace name: ' + ws.name, \n",
+        "      'Azure region: ' + ws.location, \n",
+        "      'Subscription id: ' + ws.subscription_id, \n",
+        "      'Resource group: ' + ws.resource_group, sep='\\n')\n",
+        "\n",
+        "experiment = Experiment(workspace=ws, name='tensorflow_aml')\n",
+        "# start logging for the run\n",
+        "run = experiment.start_logging()\n",
+        "\n",
+        "# access the run id for use later\n",
+        "run_id = run.id\n"
       ],
-      "outputs": [],
-      "execution_count": 6,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Workspace name: mlw-dev-geog-01\nAzure region: eastus\nSubscription id: 062bbb35-45d7-40c6-937f-a43ab3667b0f\nResource group: rg-dev-geog-eastus\n"
+        }
+      ],
+      "execution_count": 28,
       "metadata": {
         "id": "_wqSAZExy6xV",
         "gather": {
-          "logged": 1649359202299
+          "logged": 1649709956023
         }
       }
     },
@@ -166,12 +173,18 @@
         "# Clear any logs from previous runs\n",
         "!rm -rf ./logs/ "
       ],
-      "outputs": [],
-      "execution_count": 7,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "rm: cannot remove './logs/gradient_tape/20220411-202804/test': Directory not empty\r\nrm: cannot remove './logs/gradient_tape/20220411-202804/train': Directory not empty\r\n"
+        }
+      ],
+      "execution_count": 29,
       "metadata": {
         "id": "Ao7fJW1Pyiza",
         "gather": {
-          "logged": 1649359206298
+          "logged": 1649709956891
         }
       }
     },
@@ -201,11 +214,11 @@
         "  ])"
       ],
       "outputs": [],
-      "execution_count": 8,
+      "execution_count": 30,
       "metadata": {
         "id": "j-DHsby18cot",
         "gather": {
-          "logged": 1649359214772
+          "logged": 1649709963092
         }
       }
     },
@@ -251,22 +264,22 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "Epoch 1/5\n1875/1875 [==============================] - 5s 2ms/step - loss: 0.2235 - accuracy: 0.9335 - val_loss: 0.1052 - val_accuracy: 0.9668\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 2/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0973 - accuracy: 0.9702 - val_loss: 0.0909 - val_accuracy: 0.9699\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 3/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0689 - accuracy: 0.9774 - val_loss: 0.0788 - val_accuracy: 0.9752\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 4/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0530 - accuracy: 0.9827 - val_loss: 0.0678 - val_accuracy: 0.9792\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 5/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0420 - accuracy: 0.9859 - val_loss: 0.0587 - val_accuracy: 0.9818\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\n"
+          "text": "Epoch 1/5\n   2/1875 [..............................] - ETA: 12:05 - loss: 2.2529 - accuracy: 0.2656WARNING:tensorflow:Method (on_train_batch_end) is slow compared to the batch update (0.387086). Check your callbacks.\n1875/1875 [==============================] - 5s 3ms/step - loss: 0.2190 - accuracy: 0.9355 - val_loss: 0.1014 - val_accuracy: 0.9683\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 2/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0967 - accuracy: 0.9709 - val_loss: 0.0825 - val_accuracy: 0.9742\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 3/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0683 - accuracy: 0.9784 - val_loss: 0.0720 - val_accuracy: 0.9772\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 4/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0534 - accuracy: 0.9826 - val_loss: 0.0603 - val_accuracy: 0.9809\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\nEpoch 5/5\n1875/1875 [==============================] - 4s 2ms/step - loss: 0.0428 - accuracy: 0.9861 - val_loss: 0.0632 - val_accuracy: 0.9805\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\n"
         },
         {
           "output_type": "execute_result",
-          "execution_count": 9,
+          "execution_count": 31,
           "data": {
-            "text/plain": "<keras.callbacks.History at 0x7f0be80dff40>"
+            "text/plain": "<tensorflow.python.keras.callbacks.History at 0x7f7cb41b0040>"
           },
           "metadata": {}
         }
       ],
-      "execution_count": 9,
+      "execution_count": 31,
       "metadata": {
         "id": "WAQThq539CEJ",
         "gather": {
-          "logged": 1649359260774
+          "logged": 1649709989754
         }
       }
     },
@@ -281,10 +294,7 @@
     },
     {
       "cell_type": "code",
-      "source": [
-        "#!printenv path\r\n",
-        "!tensorboard --logdir logs/fit"
-      ],
+      "source": [],
       "outputs": [
         {
           "output_type": "stream",
@@ -354,11 +364,11 @@
         "test_dataset = test_dataset.batch(64)"
       ],
       "outputs": [],
-      "execution_count": 15,
+      "execution_count": 32,
       "metadata": {
         "id": "nnHx4DsMezy1",
         "gather": {
-          "logged": 1649359393561
+          "logged": 1649709990074
         }
       }
     },
@@ -378,11 +388,11 @@
         "optimizer = tf.keras.optimizers.Adam()"
       ],
       "outputs": [],
-      "execution_count": 16,
+      "execution_count": 33,
       "metadata": {
         "id": "H2Y5-aPbAANs",
         "gather": {
-          "logged": 1649359397790
+          "logged": 1649709990278
         }
       }
     },
@@ -402,14 +412,15 @@
         "train_loss = tf.keras.metrics.Mean('train_loss', dtype=tf.float32)\n",
         "train_accuracy = tf.keras.metrics.SparseCategoricalAccuracy('train_accuracy')\n",
         "test_loss = tf.keras.metrics.Mean('test_loss', dtype=tf.float32)\n",
-        "test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy('test_accuracy')"
+        "test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy('test_accuracy')\n",
+        "\n"
       ],
       "outputs": [],
-      "execution_count": 17,
+      "execution_count": 34,
       "metadata": {
         "id": "jD0tEWrgH0TL",
         "gather": {
-          "logged": 1649359402384
+          "logged": 1649709990515
         }
       }
     },
@@ -443,11 +454,11 @@
         "  test_accuracy(y_test, predictions)"
       ],
       "outputs": [],
-      "execution_count": 18,
+      "execution_count": 35,
       "metadata": {
         "id": "TTWcJO35IJgK",
         "gather": {
-          "logged": 1649359406085
+          "logged": 1649709990971
         }
       }
     },
@@ -467,14 +478,21 @@
         "train_log_dir = 'logs/gradient_tape/' + current_time + '/train'\n",
         "test_log_dir = 'logs/gradient_tape/' + current_time + '/test'\n",
         "train_summary_writer = tf.summary.create_file_writer(train_log_dir)\n",
-        "test_summary_writer = tf.summary.create_file_writer(test_log_dir)"
+        "test_summary_writer = tf.summary.create_file_writer(test_log_dir)\n",
+        "\n",
+        "run.log(\"current_time\", current_time)\n",
+        "run.log(\"train_log_dir\", train_log_dir)\n",
+        "run.log(\"test_log_dir\", test_log_dir)\n",
+        "run.log(\"train_summary_writer\", train_summary_writer)\n",
+        "run.log(\"test_summary_writer\", test_summary_writer)\n",
+        "\n"
       ],
       "outputs": [],
-      "execution_count": 19,
+      "execution_count": 36,
       "metadata": {
         "id": "3Qp-exmbWf4w",
         "gather": {
-          "logged": 1649359411292
+          "logged": 1649709991313
         }
       }
     },
@@ -513,6 +531,14 @@
         "                         train_accuracy.result()*100,\n",
         "                         test_loss.result(), \n",
         "                         test_accuracy.result()*100))\n",
+        "  \n",
+        "  run.log(\"epoch\", epoch+1)\n",
+        "  run.log(\"loss\", train_loss.result().numpy())\n",
+        "  run.log(\"accuracy%\", train_accuracy.result().numpy()*100)\n",
+        "  run.log(\"test loss\", test_loss.result().numpy())\n",
+        "  run.log(\"test_accuracy\", test_accuracy.result().numpy())\n",
+        "\n",
+        "  \n",
         "\n",
         "  # Reset metrics every epoch\n",
         "  train_loss.reset_states()\n",
@@ -524,14 +550,45 @@
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "Epoch 1, Loss: 0.24641771614551544, Accuracy: 92.78166961669922, Test Loss: 0.11906357854604721, Test Accuracy: 96.47000122070312\nEpoch 2, Loss: 0.10467921942472458, Accuracy: 96.87999725341797, Test Loss: 0.08568025380373001, Test Accuracy: 97.3699951171875\nEpoch 3, Loss: 0.07265210151672363, Accuracy: 97.77833557128906, Test Loss: 0.07048994302749634, Test Accuracy: 97.8699951171875\nEpoch 4, Loss: 0.056031353771686554, Accuracy: 98.24333190917969, Test Loss: 0.06990496069192886, Test Accuracy: 97.80999755859375\nEpoch 5, Loss: 0.04361996799707413, Accuracy: 98.57833099365234, Test Loss: 0.0617515966296196, Test Accuracy: 98.08999633789062\n"
+          "text": "Epoch 1, Loss: 0.24523401260375977, Accuracy: 92.961669921875, Test Loss: 0.11503416299819946, Test Accuracy: 96.43000030517578\nEpoch 2, Loss: 0.10651303827762604, Accuracy: 96.82166290283203, Test Loss: 0.08942452818155289, Test Accuracy: 97.18000030517578\nEpoch 3, Loss: 0.07466531544923782, Accuracy: 97.66166687011719, Test Loss: 0.06953956186771393, Test Accuracy: 97.83999633789062\nEpoch 4, Loss: 0.05487140268087387, Accuracy: 98.28333282470703, Test Loss: 0.06528908759355545, Test Accuracy: 97.94999694824219\nEpoch 5, Loss: 0.04415414482355118, Accuracy: 98.55166625976562, Test Loss: 0.06298445165157318, Test Accuracy: 97.97999572753906\n"
         }
       ],
-      "execution_count": 20,
+      "execution_count": 37,
       "metadata": {
         "id": "odWvHPpKJvb_",
         "gather": {
-          "logged": 1649359473774
+          "logged": 1649710041068
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "test_loss.result().numpy()"
+      ],
+      "outputs": [
+        {
+          "output_type": "execute_result",
+          "execution_count": 27,
+          "data": {
+            "text/plain": "0.0717277"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 27,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1649709876689
         }
       }
     },
@@ -547,12 +604,23 @@
     {
       "cell_type": "code",
       "source": [
-        "%tensorboard --logdir logs/gradient_tape"
+        "run.complete()"
       ],
       "outputs": [],
-      "execution_count": null,
+      "execution_count": 38,
       "metadata": {
-        "id": "-Iue509kgOyE"
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        },
+        "gather": {
+          "logged": 1649710047743
+        }
       }
     },
     {
@@ -587,7 +655,7 @@
       }
     },
     {
-      "cell_type": "code",
+      "cell_type": "markdown",
       "source": [
         "!tensorboard dev upload \\\n",
         "  --logdir logs/fit \\\n",
@@ -595,18 +663,11 @@
         "  --description \"(optional) Simple comparison of several hyperparameters\" \\\n",
         "  --one_shot"
       ],
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stderr",
-          "text": "UsageError: Line magic function `%tensorboard` not found.\n"
-        }
-      ],
-      "execution_count": 24,
       "metadata": {
-        "id": "Q3nupQL24E5E",
-        "gather": {
-          "logged": 1649359695835
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
         }
       }
     },
