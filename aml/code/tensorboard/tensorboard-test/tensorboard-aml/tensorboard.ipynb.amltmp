@@ -1,0 +1,792 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Copyright (c) Microsoft Corporation. All rights reserved.\n",
+        "\n",
+        "Licensed under the MIT License."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "![Impressions](https://PixelServer20190423114238.azurewebsites.net/api/impressions/NotebookVM/how-to-use-azureml/track-and-monitor-experiments/tensorboard/tensorboard.png)"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# Tensorboard Integration with Run History\n",
+        "\n",
+        "1. Run a TensorFlow job locally and view its TB output live.\n",
+        "2. The same, for a DSVM.\n",
+        "3. And once more, with an AmlCompute cluster.\n",
+        "4. Finally, we'll collect all of these historical runs together into a single Tensorboard graph."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Prerequisites\n",
+        "* Understand the [architecture and terms](https://docs.microsoft.com/azure/machine-learning/service/concept-azure-machine-learning-architecture) introduced by Azure Machine Learning\n",
+        "* If you are using an Azure Machine Learning Notebook VM, you are all set. Otherwise, go through the [configuration notebook](../../../configuration.ipynb) notebook to:\n",
+        "    * install the AML SDK\n",
+        "    * create a workspace and its configuration file (`config.json`)"
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Check core SDK version number\n",
+        "import azureml.core\n",
+        "\n",
+        "print(\"SDK version:\", azureml.core.VERSION)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "SDK version: 1.40.0\n"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {
+        "gather": {
+          "logged": 1649088114180
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "!pip install -U azureml-core\n",
+        "!pip install -U azureml-telemetry\n",
+        "!pip install -U azureml-tensorboard\n",
+        "!pip install -U tensorboard-plugin-\n",
+        "!pip install -U azureml-train"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Requirement already satisfied: azureml-core in /anaconda/lib/python3.9/site-packages (1.40.0)\nRequirement already satisfied: cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (36.0.0)\nRequirement already satisfied: azure-common<2.0.0,>=1.1.12 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.1.28)\nRequirement already satisfied: msrest<1.0.0,>=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.6.21)\nRequirement already satisfied: humanfriendly<11.0,>=4.7 in /anaconda/lib/python3.9/site-packages (from azureml-core) (10.0)\nRequirement already satisfied: packaging<22.0,>=20.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (21.3)\nRequirement already satisfied: argcomplete<2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.12.3)\nRequirement already satisfied: knack~=0.9.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.9.0)\nRequirement already satisfied: azure-mgmt-resource<21.0.0,>=15.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (20.1.0)\nRequirement already satisfied: ndg-httpsclient<=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.5.1)\nRequirement already satisfied: pyopenssl<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (21.0.0)\nRequirement already satisfied: azure-mgmt-keyvault<10.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (9.3.0)\nRequirement already satisfied: backports.tempfile in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.0)\nRequirement already satisfied: azure-core<1.22 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.21.1)\nRequirement already satisfied: contextlib2<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (21.6.0)\nRequirement already satisfied: pathspec<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.9.0)\nRequirement already satisfied: urllib3<=1.26.7,>=1.23 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.26.7)\nRequirement already satisfied: jmespath<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.10.0)\nRequirement already satisfied: jsonpickle<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (2.1.0)\nRequirement already satisfied: msal-extensions<0.4,>=0.3.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.3.1)\nRequirement already satisfied: pytz in /anaconda/lib/python3.9/site-packages (from azureml-core) (2022.1)\nRequirement already satisfied: msrestazure<=0.6.4,>=0.4.33 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.6.4)\nRequirement already satisfied: azure-graphrbac<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.61.1)\nRequirement already satisfied: azure-mgmt-containerregistry<9.0.0,>=8.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (8.2.0)\nRequirement already satisfied: python-dateutil<3.0.0,>=2.7.3 in /anaconda/lib/python3.9/site-packages (from azureml-core) (2.8.2)\nRequirement already satisfied: msal<2.0.0,>=1.15.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.17.0)\nRequirement already satisfied: SecretStorage<4.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (3.3.1)\nRequirement already satisfied: requests[socks]<3.0.0,>=2.19.1 in /anaconda/lib/python3.9/site-packages (from azureml-core) (2.27.1)\nRequirement already satisfied: azure-mgmt-storage<20.0.0,>=16.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (19.1.0)\nRequirement already satisfied: azure-mgmt-authorization<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (0.61.0)\nRequirement already satisfied: pkginfo in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.8.2)\nRequirement already satisfied: docker<6.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (5.0.3)\nRequirement already satisfied: adal<=1.2.7,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (1.2.7)\nRequirement already satisfied: PyJWT<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core) (2.3.0)\nRequirement already satisfied: paramiko<3.0.0,>=2.0.8 in /anaconda/lib/python3.9/site-packages (from azureml-core) (2.10.3)\nRequirement already satisfied: six>=1.11.0 in /anaconda/lib/python3.9/site-packages (from azure-core<1.22->azureml-core) (1.16.0)\nRequirement already satisfied: azure-mgmt-core<2.0.0,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azure-mgmt-containerregistry<9.0.0,>=8.2.0->azureml-core) (1.3.0)\nRequirement already satisfied: cffi>=1.12 in /anaconda/lib/python3.9/site-packages (from cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core) (1.15.0)\nRequirement already satisfied: pycparser in /anaconda/lib/python3.9/site-packages (from cffi>=1.12->cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core) (2.21)\nRequirement already satisfied: websocket-client>=0.32.0 in /anaconda/lib/python3.9/site-packages (from docker<6.0.0->azureml-core) (1.3.2)\nRequirement already satisfied: tabulate in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core) (0.8.9)\nRequirement already satisfied: pygments in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core) (2.11.2)\nRequirement already satisfied: pyyaml in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core) (6.0)\nRequirement already satisfied: portalocker<3,>=1.0 in /anaconda/lib/python3.9/site-packages (from msal-extensions<0.4,>=0.3.0->azureml-core) (2.4.0)\nRequirement already satisfied: requests-oauthlib>=0.5.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core) (1.3.0)\nRequirement already satisfied: isodate>=0.6.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core) (0.6.1)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core) (2021.10.8)\nRequirement already satisfied: pyasn1>=0.1.1 in /anaconda/lib/python3.9/site-packages (from ndg-httpsclient<=0.5.1->azureml-core) (0.4.8)\nRequirement already satisfied: pyparsing!=3.0.5,>=2.0.2 in /anaconda/lib/python3.9/site-packages (from packaging<22.0,>=20.0->azureml-core) (3.0.7)\nRequirement already satisfied: bcrypt>=3.1.3 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core) (3.2.0)\nRequirement already satisfied: pynacl>=1.0.1 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core) (1.5.0)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core) (3.3)\nRequirement already satisfied: charset-normalizer~=2.0.0 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core) (2.0.4)\nRequirement already satisfied: oauthlib>=3.0.0 in /anaconda/lib/python3.9/site-packages (from requests-oauthlib>=0.5.0->msrest<1.0.0,>=0.5.1->azureml-core) (3.2.0)\nRequirement already satisfied: PySocks!=1.5.7,>=1.5.6 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core) (1.7.1)\nRequirement already satisfied: jeepney>=0.6 in /anaconda/lib/python3.9/site-packages (from SecretStorage<4.0.0->azureml-core) (0.8.0)\nRequirement already satisfied: backports.weakref in /anaconda/lib/python3.9/site-packages (from backports.tempfile->azureml-core) (1.0.post1)\n\u001b[33mWARNING: Error parsing requirements for numpy: [Errno 2] No such file or directory: '/anaconda/lib/python3.9/site-packages/numpy-1.22.3.dist-info/METADATA'\u001b[0m\nRequirement already satisfied: azureml-telemetry in /anaconda/lib/python3.9/site-packages (1.40.0)\nRequirement already satisfied: azureml-core~=1.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-telemetry) (1.40.0)\nRequirement already satisfied: applicationinsights in /anaconda/lib/python3.9/site-packages (from azureml-telemetry) (0.11.10)\nRequirement already satisfied: docker<6.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (5.0.3)\nRequirement already satisfied: azure-core<1.22 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.21.1)\nRequirement already satisfied: ndg-httpsclient<=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.5.1)\nRequirement already satisfied: msal<2.0.0,>=1.15.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.17.0)\nRequirement already satisfied: python-dateutil<3.0.0,>=2.7.3 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2.8.2)\nRequirement already satisfied: msal-extensions<0.4,>=0.3.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.3.1)\nRequirement already satisfied: PyJWT<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2.3.0)\nRequirement already satisfied: azure-mgmt-keyvault<10.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (9.3.0)\nRequirement already satisfied: azure-mgmt-resource<21.0.0,>=15.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (20.1.0)\nRequirement already satisfied: pyopenssl<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (21.0.0)\nRequirement already satisfied: msrestazure<=0.6.4,>=0.4.33 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.6.4)\nRequirement already satisfied: paramiko<3.0.0,>=2.0.8 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2.10.3)\nRequirement already satisfied: azure-graphrbac<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.61.1)\nRequirement already satisfied: azure-mgmt-containerregistry<9.0.0,>=8.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (8.2.0)\nRequirement already satisfied: requests[socks]<3.0.0,>=2.19.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2.27.1)\nRequirement already satisfied: msrest<1.0.0,>=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.6.21)\nRequirement already satisfied: packaging<22.0,>=20.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (21.3)\nRequirement already satisfied: jmespath<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.10.0)\nRequirement already satisfied: pkginfo in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.8.2)\nRequirement already satisfied: azure-mgmt-storage<20.0.0,>=16.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (19.1.0)\nRequirement already satisfied: contextlib2<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (21.6.0)\nRequirement already satisfied: pathspec<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.9.0)\nRequirement already satisfied: SecretStorage<4.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (3.3.1)\nRequirement already satisfied: urllib3<=1.26.7,>=1.23 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.26.7)\nRequirement already satisfied: adal<=1.2.7,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.2.7)\nRequirement already satisfied: pytz in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2022.1)\nRequirement already satisfied: backports.tempfile in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.0)\nRequirement already satisfied: knack~=0.9.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.9.0)\nRequirement already satisfied: jsonpickle<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (2.1.0)\nRequirement already satisfied: argcomplete<2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.12.3)\nRequirement already satisfied: cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (36.0.0)\nRequirement already satisfied: azure-mgmt-authorization<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (0.61.0)\nRequirement already satisfied: azure-common<2.0.0,>=1.1.12 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (1.1.28)\nRequirement already satisfied: humanfriendly<11.0,>=4.7 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-telemetry) (10.0)\nRequirement already satisfied: six>=1.11.0 in /anaconda/lib/python3.9/site-packages (from azure-core<1.22->azureml-core~=1.40.0->azureml-telemetry) (1.16.0)\nRequirement already satisfied: azure-mgmt-core<2.0.0,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azure-mgmt-containerregistry<9.0.0,>=8.2.0->azureml-core~=1.40.0->azureml-telemetry) (1.3.0)\nRequirement already satisfied: cffi>=1.12 in /anaconda/lib/python3.9/site-packages (from cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-telemetry) (1.15.0)\nRequirement already satisfied: pycparser in /anaconda/lib/python3.9/site-packages (from cffi>=1.12->cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-telemetry) (2.21)\nRequirement already satisfied: websocket-client>=0.32.0 in /anaconda/lib/python3.9/site-packages (from docker<6.0.0->azureml-core~=1.40.0->azureml-telemetry) (1.3.2)\nRequirement already satisfied: pyyaml in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-telemetry) (6.0)\nRequirement already satisfied: pygments in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-telemetry) (2.11.2)\nRequirement already satisfied: tabulate in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-telemetry) (0.8.9)\nRequirement already satisfied: portalocker<3,>=1.0 in /anaconda/lib/python3.9/site-packages (from msal-extensions<0.4,>=0.3.0->azureml-core~=1.40.0->azureml-telemetry) (2.4.0)\nRequirement already satisfied: isodate>=0.6.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-telemetry) (0.6.1)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-telemetry) (2021.10.8)\nRequirement already satisfied: requests-oauthlib>=0.5.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-telemetry) (1.3.0)\nRequirement already satisfied: pyasn1>=0.1.1 in /anaconda/lib/python3.9/site-packages (from ndg-httpsclient<=0.5.1->azureml-core~=1.40.0->azureml-telemetry) (0.4.8)\nRequirement already satisfied: pyparsing!=3.0.5,>=2.0.2 in /anaconda/lib/python3.9/site-packages (from packaging<22.0,>=20.0->azureml-core~=1.40.0->azureml-telemetry) (3.0.7)\nRequirement already satisfied: pynacl>=1.0.1 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-telemetry) (1.5.0)\nRequirement already satisfied: bcrypt>=3.1.3 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-telemetry) (3.2.0)\nRequirement already satisfied: charset-normalizer~=2.0.0 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-telemetry) (2.0.4)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-telemetry) (3.3)\nRequirement already satisfied: oauthlib>=3.0.0 in /anaconda/lib/python3.9/site-packages (from requests-oauthlib>=0.5.0->msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-telemetry) (3.2.0)\nRequirement already satisfied: PySocks!=1.5.7,>=1.5.6 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-telemetry) (1.7.1)\nRequirement already satisfied: jeepney>=0.6 in /anaconda/lib/python3.9/site-packages (from SecretStorage<4.0.0->azureml-core~=1.40.0->azureml-telemetry) (0.8.0)\nRequirement already satisfied: backports.weakref in /anaconda/lib/python3.9/site-packages (from backports.tempfile->azureml-core~=1.40.0->azureml-telemetry) (1.0.post1)\n\u001b[33mWARNING: Error parsing requirements for numpy: [Errno 2] No such file or directory: '/anaconda/lib/python3.9/site-packages/numpy-1.22.3.dist-info/METADATA'\u001b[0m\nRequirement already satisfied: azureml-tensorboard in /anaconda/lib/python3.9/site-packages (1.40.0)\nRequirement already satisfied: azureml-core~=1.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-tensorboard) (1.40.0)\nRequirement already satisfied: cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (36.0.0)\nRequirement already satisfied: SecretStorage<4.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (3.3.1)\nRequirement already satisfied: contextlib2<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (21.6.0)\nRequirement already satisfied: azure-common<2.0.0,>=1.1.12 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.1.28)\nRequirement already satisfied: docker<6.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (5.0.3)\nRequirement already satisfied: argcomplete<2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.12.3)\nRequirement already satisfied: msrestazure<=0.6.4,>=0.4.33 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.6.4)\nRequirement already satisfied: adal<=1.2.7,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.2.7)\nRequirement already satisfied: azure-mgmt-storage<20.0.0,>=16.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (19.1.0)\nRequirement already satisfied: jmespath<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.10.0)\nRequirement already satisfied: knack~=0.9.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.9.0)\nRequirement already satisfied: azure-core<1.22 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.21.1)\nRequirement already satisfied: azure-graphrbac<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.61.1)\nRequirement already satisfied: azure-mgmt-authorization<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.61.0)\nRequirement already satisfied: msal-extensions<0.4,>=0.3.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.3.1)\nRequirement already satisfied: paramiko<3.0.0,>=2.0.8 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2.10.3)\nRequirement already satisfied: humanfriendly<11.0,>=4.7 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (10.0)\nRequirement already satisfied: azure-mgmt-resource<21.0.0,>=15.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (20.1.0)\nRequirement already satisfied: backports.tempfile in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.0)\nRequirement already satisfied: pathspec<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.9.0)\nRequirement already satisfied: python-dateutil<3.0.0,>=2.7.3 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2.8.2)\nRequirement already satisfied: pyopenssl<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (21.0.0)\nRequirement already satisfied: azure-mgmt-containerregistry<9.0.0,>=8.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (8.2.0)\nRequirement already satisfied: azure-mgmt-keyvault<10.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (9.3.0)\nRequirement already satisfied: ndg-httpsclient<=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.5.1)\nRequirement already satisfied: jsonpickle<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2.1.0)\nRequirement already satisfied: pytz in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2022.1)\nRequirement already satisfied: pkginfo in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.8.2)\nRequirement already satisfied: urllib3<=1.26.7,>=1.23 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.26.7)\nRequirement already satisfied: PyJWT<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2.3.0)\nRequirement already satisfied: requests[socks]<3.0.0,>=2.19.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (2.27.1)\nRequirement already satisfied: packaging<22.0,>=20.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (21.3)\nRequirement already satisfied: msal<2.0.0,>=1.15.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (1.17.0)\nRequirement already satisfied: msrest<1.0.0,>=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-tensorboard) (0.6.21)\nRequirement already satisfied: six>=1.11.0 in /anaconda/lib/python3.9/site-packages (from azure-core<1.22->azureml-core~=1.40.0->azureml-tensorboard) (1.16.0)\nRequirement already satisfied: azure-mgmt-core<2.0.0,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azure-mgmt-containerregistry<9.0.0,>=8.2.0->azureml-core~=1.40.0->azureml-tensorboard) (1.3.0)\nRequirement already satisfied: cffi>=1.12 in /anaconda/lib/python3.9/site-packages (from cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-tensorboard) (1.15.0)\nRequirement already satisfied: pycparser in /anaconda/lib/python3.9/site-packages (from cffi>=1.12->cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-tensorboard) (2.21)\nRequirement already satisfied: websocket-client>=0.32.0 in /anaconda/lib/python3.9/site-packages (from docker<6.0.0->azureml-core~=1.40.0->azureml-tensorboard) (1.3.2)\nRequirement already satisfied: tabulate in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-tensorboard) (0.8.9)\nRequirement already satisfied: pygments in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-tensorboard) (2.11.2)\nRequirement already satisfied: pyyaml in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-tensorboard) (6.0)\nRequirement already satisfied: portalocker<3,>=1.0 in /anaconda/lib/python3.9/site-packages (from msal-extensions<0.4,>=0.3.0->azureml-core~=1.40.0->azureml-tensorboard) (2.4.0)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-tensorboard) (2021.10.8)\nRequirement already satisfied: isodate>=0.6.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-tensorboard) (0.6.1)\nRequirement already satisfied: requests-oauthlib>=0.5.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-tensorboard) (1.3.0)\nRequirement already satisfied: pyasn1>=0.1.1 in /anaconda/lib/python3.9/site-packages (from ndg-httpsclient<=0.5.1->azureml-core~=1.40.0->azureml-tensorboard) (0.4.8)\nRequirement already satisfied: pyparsing!=3.0.5,>=2.0.2 in /anaconda/lib/python3.9/site-packages (from packaging<22.0,>=20.0->azureml-core~=1.40.0->azureml-tensorboard) (3.0.7)\nRequirement already satisfied: bcrypt>=3.1.3 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-tensorboard) (3.2.0)\nRequirement already satisfied: pynacl>=1.0.1 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-tensorboard) (1.5.0)\nRequirement already satisfied: charset-normalizer~=2.0.0 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-tensorboard) (2.0.4)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-tensorboard) (3.3)\nRequirement already satisfied: oauthlib>=3.0.0 in /anaconda/lib/python3.9/site-packages (from requests-oauthlib>=0.5.0->msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-tensorboard) (3.2.0)\nRequirement already satisfied: PySocks!=1.5.7,>=1.5.6 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-tensorboard) (1.7.1)\nRequirement already satisfied: jeepney>=0.6 in /anaconda/lib/python3.9/site-packages (from SecretStorage<4.0.0->azureml-core~=1.40.0->azureml-tensorboard) (0.8.0)\nRequirement already satisfied: backports.weakref in /anaconda/lib/python3.9/site-packages (from backports.tempfile->azureml-core~=1.40.0->azureml-tensorboard) (1.0.post1)\n\u001b[33mWARNING: Error parsing requirements for numpy: [Errno 2] No such file or directory: '/anaconda/lib/python3.9/site-packages/numpy-1.22.3.dist-info/METADATA'\u001b[0m\n\u001b[31mERROR: Invalid requirement: 'tensorboard-plugin-'\u001b[0m\nCollecting azureml-train\n  Downloading azureml_train-1.40.0-py3-none-any.whl (3.3 kB)\nCollecting azureml-train-core~=1.40.0\n  Downloading azureml_train_core-1.40.0-py3-none-any.whl (8.6 MB)\n\u001b[K     |████████████████████████████████| 8.6 MB 21.1 MB/s eta 0:00:01\n\u001b[?25hRequirement already satisfied: azureml-telemetry~=1.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-train-core~=1.40.0->azureml-train) (1.40.0)\nCollecting azureml-train-restclients-hyperdrive~=1.40.0\n  Downloading azureml_train_restclients_hyperdrive-1.40.0-py3-none-any.whl (19 kB)\nRequirement already satisfied: azureml-core~=1.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-train-core~=1.40.0->azureml-train) (1.40.0)\nRequirement already satisfied: azure-mgmt-resource<21.0.0,>=15.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (20.1.0)\nRequirement already satisfied: azure-mgmt-containerregistry<9.0.0,>=8.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (8.2.0)\nRequirement already satisfied: azure-mgmt-storage<20.0.0,>=16.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (19.1.0)\nRequirement already satisfied: azure-mgmt-keyvault<10.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (9.3.0)\nRequirement already satisfied: azure-common<2.0.0,>=1.1.12 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.1.28)\nRequirement already satisfied: backports.tempfile in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.0)\nRequirement already satisfied: azure-mgmt-authorization<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.61.0)\nRequirement already satisfied: pyopenssl<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (21.0.0)\nRequirement already satisfied: argcomplete<2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.12.3)\nRequirement already satisfied: msal<2.0.0,>=1.15.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.17.0)\nRequirement already satisfied: pathspec<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.9.0)\nRequirement already satisfied: pytz in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2022.1)\nRequirement already satisfied: pkginfo in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.8.2)\nRequirement already satisfied: humanfriendly<11.0,>=4.7 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (10.0)\nRequirement already satisfied: azure-core<1.22 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.21.1)\nRequirement already satisfied: ndg-httpsclient<=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.5.1)\nRequirement already satisfied: docker<6.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (5.0.3)\nRequirement already satisfied: jmespath<1.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.10.0)\nRequirement already satisfied: requests[socks]<3.0.0,>=2.19.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.27.1)\nRequirement already satisfied: contextlib2<22.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (21.6.0)\nRequirement already satisfied: azure-graphrbac<1.0.0,>=0.40.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.61.1)\nRequirement already satisfied: cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (36.0.0)\nRequirement already satisfied: python-dateutil<3.0.0,>=2.7.3 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.8.2)\nRequirement already satisfied: adal<=1.2.7,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.2.7)\nRequirement already satisfied: msrest<1.0.0,>=0.5.1 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.6.21)\nRequirement already satisfied: msrestazure<=0.6.4,>=0.4.33 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.6.4)\nRequirement already satisfied: msal-extensions<0.4,>=0.3.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.3.1)\nRequirement already satisfied: paramiko<3.0.0,>=2.0.8 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.10.3)\nRequirement already satisfied: urllib3<=1.26.7,>=1.23 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.26.7)\nRequirement already satisfied: SecretStorage<4.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (3.3.1)\nRequirement already satisfied: jsonpickle<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.1.0)\nRequirement already satisfied: packaging<22.0,>=20.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (21.3)\nRequirement already satisfied: PyJWT<3.0.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.3.0)\nRequirement already satisfied: knack~=0.9.0 in /anaconda/lib/python3.9/site-packages (from azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.9.0)\nRequirement already satisfied: six>=1.11.0 in /anaconda/lib/python3.9/site-packages (from azure-core<1.22->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.16.0)\nRequirement already satisfied: azure-mgmt-core<2.0.0,>=1.2.0 in /anaconda/lib/python3.9/site-packages (from azure-mgmt-containerregistry<9.0.0,>=8.2.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.3.0)\nRequirement already satisfied: applicationinsights in /anaconda/lib/python3.9/site-packages (from azureml-telemetry~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.11.10)\nRequirement already satisfied: cffi>=1.12 in /anaconda/lib/python3.9/site-packages (from cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.15.0)\nRequirement already satisfied: pycparser in /anaconda/lib/python3.9/site-packages (from cffi>=1.12->cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.*,<37.0.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.21)\nRequirement already satisfied: websocket-client>=0.32.0 in /anaconda/lib/python3.9/site-packages (from docker<6.0.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.3.2)\nRequirement already satisfied: pyyaml in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (6.0)\nRequirement already satisfied: pygments in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.11.2)\nRequirement already satisfied: tabulate in /anaconda/lib/python3.9/site-packages (from knack~=0.9.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.8.9)\nRequirement already satisfied: portalocker<3,>=1.0 in /anaconda/lib/python3.9/site-packages (from msal-extensions<0.4,>=0.3.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.4.0)\nRequirement already satisfied: requests-oauthlib>=0.5.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.3.0)\nRequirement already satisfied: certifi>=2017.4.17 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2021.10.8)\nRequirement already satisfied: isodate>=0.6.0 in /anaconda/lib/python3.9/site-packages (from msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.6.1)\nRequirement already satisfied: pyasn1>=0.1.1 in /anaconda/lib/python3.9/site-packages (from ndg-httpsclient<=0.5.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.4.8)\nRequirement already satisfied: pyparsing!=3.0.5,>=2.0.2 in /anaconda/lib/python3.9/site-packages (from packaging<22.0,>=20.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (3.0.7)\nRequirement already satisfied: pynacl>=1.0.1 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.5.0)\nRequirement already satisfied: bcrypt>=3.1.3 in /anaconda/lib/python3.9/site-packages (from paramiko<3.0.0,>=2.0.8->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (3.2.0)\nRequirement already satisfied: idna<4,>=2.5 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (3.3)\nRequirement already satisfied: charset-normalizer~=2.0.0 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (2.0.4)\nRequirement already satisfied: oauthlib>=3.0.0 in /anaconda/lib/python3.9/site-packages (from requests-oauthlib>=0.5.0->msrest<1.0.0,>=0.5.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (3.2.0)\nRequirement already satisfied: PySocks!=1.5.7,>=1.5.6 in /anaconda/lib/python3.9/site-packages (from requests[socks]<3.0.0,>=2.19.1->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.7.1)\nRequirement already satisfied: jeepney>=0.6 in /anaconda/lib/python3.9/site-packages (from SecretStorage<4.0.0->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (0.8.0)\nRequirement already satisfied: backports.weakref in /anaconda/lib/python3.9/site-packages (from backports.tempfile->azureml-core~=1.40.0->azureml-train-core~=1.40.0->azureml-train) (1.0.post1)\n\u001b[33mWARNING: Error parsing requirements for numpy: [Errno 2] No such file or directory: '/anaconda/lib/python3.9/site-packages/numpy-1.22.3.dist-info/METADATA'\u001b[0m\nInstalling collected packages: azureml-train-restclients-hyperdrive, azureml-train-core, azureml-train\nSuccessfully installed azureml-train-1.40.0 azureml-train-core-1.40.0 azureml-train-restclients-hyperdrive-1.40.0\n"
+        }
+      ],
+      "execution_count": 18,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Diagnostics\n",
+        "Opt-in diagnostics for better experience, quality, and security of future releases."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.telemetry import set_diagnostics_collection\n",
+        "\n",
+        "set_diagnostics_collection(send_diagnostics=True)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Turning diagnostics collection on. \n"
+        }
+      ],
+      "execution_count": 8,
+      "metadata": {
+        "gather": {
+          "logged": 1649088121862
+        },
+        "tags": [
+          "Diagnostics"
+        ],
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Initialize Workspace\n",
+        "\n",
+        "Initialize a workspace object from persisted configuration."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import Workspace\n",
+        "\n",
+        "ws = Workspace.from_config()\n",
+        "print('Workspace name: ' + ws.name, \n",
+        "      'Azure region: ' + ws.location, \n",
+        "      'Subscription id: ' + ws.subscription_id, \n",
+        "      'Resource group: ' + ws.resource_group, sep='\\n')"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Workspace name: mlw-dev-geog-01\nAzure region: eastus\nSubscription id: 062bbb35-45d7-40c6-937f-a43ab3667b0f\nResource group: rg-dev-geog-eastus\n"
+        }
+      ],
+      "execution_count": 9,
+      "metadata": {
+        "gather": {
+          "logged": 1649098391376
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Set experiment name and create project\n",
+        "Choose a name for your run history container in the workspace, and create a folder for the project."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from os import path, makedirs\n",
+        "experiment_name = 'tensorboard-demo'\n",
+        "\n",
+        "# experiment folder\n",
+        "exp_dir = './sample_projects/' + experiment_name\n",
+        "\n",
+        "if not path.exists(exp_dir):\n",
+        "    makedirs(exp_dir)\n",
+        "\n",
+        "# runs we started in this session, for the finale\n",
+        "runs = []"
+      ],
+      "outputs": [],
+      "execution_count": 10,
+      "metadata": {
+        "gather": {
+          "logged": 1649098392169
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Download Tensorflow Tensorboard demo code\n",
+        "\n",
+        "Tensorflow's repository has an MNIST demo with extensive Tensorboard instrumentation. We'll use it here for our purposes.\n",
+        "\n",
+        "Note that we don't need to make any code changes at all - the code works without modification from the Tensorflow repository."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import requests\n",
+        "import os\n",
+        "\n",
+        "tf_code = requests.get(\"https://raw.githubusercontent.com/tensorflow/tensorflow/r2.1/tensorflow/examples/tutorials/mnist/mnist_with_summaries.py\")\n",
+        "input_code = requests.get(\"https://raw.githubusercontent.com/tensorflow/tensorflow/r2.1/tensorflow/examples/tutorials/mnist/input_data.py\")\n",
+        "with open(os.path.join(exp_dir, \"mnist_with_summaries.py\"), \"w\") as file:\n",
+        "    file.write(tf_code.text.replace(\"from tensorflow.examples.tutorials.mnist import input_data\", \"import input_data\"))\n",
+        "with open(os.path.join(exp_dir, \"input_data.py\"), \"w\") as file:\n",
+        "    file.write(input_code.text)"
+      ],
+      "outputs": [],
+      "execution_count": 11,
+      "metadata": {
+        "gather": {
+          "logged": 1649098397062
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Configure and run locally\n",
+        "\n",
+        "We'll start by running this locally. While it might not initially seem that useful to use this for a local run - why not just run TB against the files generated locally? - even in this case there is some value to using this feature. Your local run will be registered in the run history, and your Tensorboard logs will be uploaded to the artifact store associated with this run. Later, you'll be able to restore the logs from any run, regardless of where it happened.\n",
+        "\n",
+        "Note that for this run, you will need to install Tensorflow on your local machine by yourself. Further, the Tensorboard module (that is, the one included with Tensorflow) must be accessible to this notebook's kernel, as the local machine is what runs Tensorboard. In addition, you will also need to have the `azureml-tensorboard` package installed."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import Environment\n",
+        "\n",
+        "myenv = Environment(\"myenv\")\n",
+        "myenv.python.user_managed_dependencies = True\n",
+        "\n",
+        "# You can choose a specific Python environment by pointing to a Python path \n",
+        "#myenv.python.interpreter_path = '/home/ninghai/miniconda3/envs/sdk2/bin/python'"
+      ],
+      "outputs": [],
+      "execution_count": 12,
+      "metadata": {
+        "gather": {
+          "logged": 1649098419217
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core import Experiment\n",
+        "from azureml.core.script_run_config import ScriptRunConfig\n",
+        "\n",
+        "logs_dir = os.path.join(os.curdir, os.path.join(\"logs\", \"tb-logs\"))\n",
+        "data_dir = os.path.abspath(os.path.join(os.curdir, \"mnist_data\"))\n",
+        "\n",
+        "if not path.exists(data_dir):\n",
+        "    makedirs(data_dir)\n",
+        "\n",
+        "os.environ[\"TEST_TMPDIR\"] = data_dir\n",
+        "\n",
+        "# Writing logs to ./logs results in their being uploaded to Artifact Service,\n",
+        "# and thus, made accessible to our Tensorboard instance.\n",
+        "arguments = [\"--log_dir\", logs_dir]\n",
+        "\n",
+        "# Create an experiment\n",
+        "exp = Experiment(ws, experiment_name)\n",
+        "\n",
+        "# If you would like the run to go for longer, add --max_steps 5000 to the arguments list:\n",
+        "# arguments += [\"--max_steps\", \"5000\"]\n",
+        "\n",
+        "src = ScriptRunConfig(exp_dir,\n",
+        "                      script=\"mnist_with_summaries.py\",\n",
+        "                      arguments=arguments,\n",
+        "                      environment=myenv)\n",
+        "\n",
+        "run = exp.submit(src)\n",
+        "# You can also wait for the run to complete\n",
+        "# run.wait_for_completion(show_output=True)\n",
+        "runs.append(run)"
+      ],
+      "outputs": [],
+      "execution_count": 13,
+      "metadata": {
+        "gather": {
+          "logged": 1649098430075
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Start Tensorboard\n",
+        "\n",
+        "Now, while the run is in progress, we just need to start Tensorboard with the run as its target, and it will begin streaming logs."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.tensorboard import Tensorboard\n",
+        "\n",
+        "# The Tensorboard constructor takes an array of runs, so be sure and pass it in as a single-element array here\n",
+        "tb = Tensorboard([run])\n",
+        "\n",
+        "# If successful, start() returns a string with the URI of the instance.\n",
+        "tb.start()"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "https://wandent-msft2-6006.eastus.instances.azureml.ms\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 14,
+          "data": {
+            "text/plain": "'https://wandent-msft2-6006.eastus.instances.azureml.ms'"
+          },
+          "metadata": {}
+        }
+      ],
+      "execution_count": 14,
+      "metadata": {
+        "gather": {
+          "logged": 1649098441262
+        },
+        "tags": [
+          "tensorboard-sample"
+        ],
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Stop Tensorboard\n",
+        "\n",
+        "When you're done, make sure to call the `stop()` method of the Tensorboard object, or it will stay running even after your job completes."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tb.stop()"
+      ],
+      "outputs": [],
+      "execution_count": 11,
+      "metadata": {
+        "gather": {
+          "logged": 1649088401014
+        },
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Now, with a DSVM\n",
+        "\n",
+        "Tensorboard uploading works with all compute targets. Here we demonstrate it from a DSVM.\n",
+        "Note that the Tensorboard instance itself will be run by the notebook kernel. Again, this means this notebook's kernel must have access to the Tensorboard module.\n",
+        "\n",
+        "If you are unfamiliar with DSVM configuration, check [Train in a remote VM](../../training/train-on-remote-vm/train-on-remote-vm.ipynb) for a more detailed breakdown.\n",
+        "\n",
+        "**Note**: To streamline the compute that Azure Machine Learning creates, we are making updates to support creating only single to multi-node `AmlCompute`. The `DSVMCompute` class will be deprecated in a later release, but the DSVM can be created using the below single line command and then attached(like any VM) using the sample code below. Also note, that we only support Linux VMs for remote execution from AML and the commands below will spin a Linux VM only.\n",
+        "\n",
+        "```shell\n",
+        "# create a DSVM in your resource group\n",
+        "# note you need to be at least a contributor to the resource group in order to execute this command successfully.\n",
+        "(myenv) $ az vm create --resource-group <resource_group_name> --name <some_vm_name> --image microsoft-dsvm:linux-data-science-vm-ubuntu:linuxdsvmubuntu:latest --admin-username <username> --admin-password <password> --generate-ssh-keys --authentication-type password\n",
+        "```\n",
+        "You can also use [this url](https://portal.azure.com/#create/microsoft-dsvm.linux-data-science-vm-ubuntulinuxdsvmubuntu) to create the VM using the Azure Portal."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core.compute import ComputeTarget, RemoteCompute\n",
+        "from azureml.core.compute_target import ComputeTargetException\n",
+        "\n",
+        "username = os.getenv('AZUREML_DSVM_USERNAME', default='<my_username>')\n",
+        "address = os.getenv('AZUREML_DSVM_ADDRESS', default='<ip_address_or_fqdn>')\n",
+        "\n",
+        "compute_target_name = 'cpudsvm'\n",
+        "# if you want to connect using SSH key instead of username/password you can provide parameters private_key_file and private_key_passphrase \n",
+        "try:\n",
+        "    attached_dsvm_compute = RemoteCompute(workspace=ws, name=compute_target_name)\n",
+        "    print('found existing:', attached_dsvm_compute.name)\n",
+        "except ComputeTargetException:\n",
+        "    config = RemoteCompute.attach_configuration(username=username,\n",
+        "                                                address=address,\n",
+        "                                                ssh_port=22,\n",
+        "                                                private_key_file='./.ssh/id_rsa')\n",
+        "    attached_dsvm_compute = ComputeTarget.attach(ws, compute_target_name, config)\n",
+        "    \n",
+        "    attached_dsvm_compute.wait_for_completion(show_output=True)"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Submit run using TensorFlow estimator\n",
+        "\n",
+        "Instead of manually configuring the DSVM environment, we can use the TensorFlow estimator and everything is set up automatically."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.train.dnn import TensorFlow\n",
+        "\n",
+        "script_params = {\"--log_dir\": \"./logs\"}\n",
+        "\n",
+        "# If you want the run to go longer, set --max-steps to a higher number.\n",
+        "# script_params[\"--max_steps\"] = \"5000\"\n",
+        "\n",
+        "tf_estimator = TensorFlow(source_directory=exp_dir,\n",
+        "                          compute_target=attached_dsvm_compute,\n",
+        "                          entry_script='mnist_with_summaries.py',\n",
+        "                          script_params=script_params,\n",
+        "                          framework_version=\"2.0\")\n",
+        "\n",
+        "run = exp.submit(tf_estimator)\n",
+        "\n",
+        "runs.append(run)"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Start Tensorboard with this run\n",
+        "\n",
+        "Just like before."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# The Tensorboard constructor takes an array of runs, so be sure and pass it in as a single-element array here\n",
+        "tb = Tensorboard([run])\n",
+        "\n",
+        "# If successful, start() returns a string with the URI of the instance.\n",
+        "tb.start()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Stop Tensorboard\n",
+        "\n",
+        "When you're done, make sure to call the `stop()` method of the Tensorboard object, or it will stay running even after your job completes."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tb.stop()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Once more, with an AmlCompute cluster\n",
+        "\n",
+        "Just to prove we can, let's create an AmlCompute CPU cluster, and run our demo there, as well.\n",
+        "\n",
+        "> Note that if you have an AzureML Data Scientist role, you will not have permission to create compute resources. Talk to your workspace or IT admin to create the compute targets described in this section, if they do not already exist."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.core.compute import AmlCompute\n",
+        "# choose a name for your cluster\n",
+        "cluster_name = \"cpu-cluster\"\n",
+        "\n",
+        "cts = ws.compute_targets\n",
+        "found = False\n",
+        "if cluster_name in cts and cts[cluster_name].type == 'AmlCompute':\n",
+        "    found = True\n",
+        "    print('Found existing compute target.')\n",
+        "    compute_target = cts[cluster_name]\n",
+        "if not found:\n",
+        "    print('Creating a new compute target...')\n",
+        "    compute_config = AmlCompute.provisioning_configuration(vm_size='STANDARD_D2_V2', \n",
+        "                                                           max_nodes=4)\n",
+        "\n",
+        "    # create the cluster\n",
+        "    compute_target = ComputeTarget.create(ws, cluster_name, compute_config)\n",
+        "\n",
+        "compute_target.wait_for_completion(show_output=True, min_node_count=None)\n",
+        "\n",
+        "# use get_status() to get a detailed status for the current cluster. \n",
+        "# print(compute_target.get_status().serialize())"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "Found existing compute target.\nSucceeded\nAmlCompute wait for completion finished\n\nMinimum number of nodes requested have been provisioned\n"
+        }
+      ],
+      "execution_count": 19,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Submit run using TensorFlow estimator\n",
+        "\n",
+        "Again, we can use the TensorFlow estimator and everything is set up automatically."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from azureml.train.dnn import TensorFlow\n",
+        "\n",
+        "script_params = {\"--log_dir\": \"./logs\"}\n",
+        "\n",
+        "# If you want the run to go longer, set --max-steps to a higher number.\n",
+        "# script_params[\"--max_steps\"] = \"5000\"\n",
+        "\n",
+        "tf_estimator = TensorFlow(source_directory=exp_dir,\n",
+        "                          compute_target=compute_target,\n",
+        "                          entry_script='mnist_with_summaries.py',\n",
+        "                          script_params=script_params,\n",
+        "                          framework_version=\"2.0\")\n",
+        "\n",
+        "run = exp.submit(tf_estimator)\n",
+        "\n",
+        "runs.append(run)"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "'TensorFlow' estimator is deprecated. Please use 'ScriptRunConfig' from 'azureml.core.script_run_config' with your own defined environment or one of the Azure ML TensorFlow curated environments.\nWARNING:root:If 'script' has been provided here and a script file name has been specified in 'run_config', 'script' provided in ScriptRunConfig initialization will take precedence.\nWARNING:root:If 'arguments' has been provided here and arguments have been specified in 'run_config', 'arguments' provided in ScriptRunConfig initialization will take precedence.\n"
+        }
+      ],
+      "execution_count": 20,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Start Tensorboard with this run\n",
+        "\n",
+        "Once more..."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# The Tensorboard constructor takes an array of runs, so be sure and pass it in as a single-element array here\n",
+        "tb = Tensorboard([run])\n",
+        "\n",
+        "# If successful, start() returns a string with the URI of the instance.\n",
+        "tb.start()"
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "https://wandent-msft2-6006.eastus.instances.azureml.ms\n"
+        },
+        {
+          "output_type": "execute_result",
+          "execution_count": 21,
+          "data": {
+            "text/plain": "'https://wandent-msft2-6006.eastus.instances.azureml.ms'"
+          },
+          "metadata": {}
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": "Bad pipe message: %s [b'e\\xb7\\xc9\\xf9\\xf3)M\\x91\\xcd\\xde\\xfeMg\\xbb\\x93\\xacWJ \\xa9\\xfd:\\xf41OH\\x97\\xfei\\x15M\\xcf\\xf7%b\\x84\\xec\\xed$&\\x89?\\xd3\\x92\\x95\\t\"\\xed\\xd1?\\xfd\\x00\\x08\\x13\\x02\\x13\\x03\\x13\\x01\\x00\\xff\\x01\\x00\\x00\\x8f\\x00\\x00\\x00\\x0e\\x00\\x0c\\x00\\x00\\t']\nBad pipe message: %s [b'7.0.0.1\\x00\\x0b\\x00\\x04\\x03\\x00\\x01\\x02\\x00\\n\\x00\\x0c\\x00\\n\\x00\\x1d\\x00\\x17\\x00\\x1e\\x00\\x19\\x00\\x18\\x00#\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\r\\x00\\x1e\\x00']\nBad pipe message: %s [b'\\x03\\x05\\x03\\x06\\x03\\x08\\x07\\x08\\x08\\x08\\t\\x08\\n\\x08\\x0b\\x08\\x04\\x08\\x05\\x08\\x06\\x04\\x01\\x05\\x01\\x06\\x01']\nBad pipe message: %s [b\"#\\x18Fb\\\\\\x92\\x0b\\xc7\\xc9A\\xa1 O\\x00t3*\\xc5\\x00\\x00\\xa6\\xc0,\\xc00\\x00\\xa3\\x00\\x9f\\xcc\\xa9\\xcc\\xa8\\xcc\\xaa\\xc0\\xaf\\xc0\\xad\\xc0\\xa3\\xc0\\x9f\\xc0]\\xc0a\\xc0W\\xc0S\\xc0+\\xc0/\\x00\\xa2\\x00\\x9e\\xc0\\xae\\xc0\\xac\\xc0\\xa2\\xc0\\x9e\\xc0\\\\\\xc0`\\xc0V\\xc0R\\xc0$\\xc0(\\x00k\\x00j\\xc0s\\xc0w\\x00\\xc4\\x00\\xc3\\xc0#\\xc0'\\x00g\\x00@\\xc0r\\xc0v\\x00\\xbe\\x00\\xbd\\xc0\\n\\xc0\\x14\\x009\\x008\\x00\\x88\\x00\\x87\\xc0\\t\\xc0\\x13\\x003\\x002\\x00\\x9a\\x00\\x99\\x00E\\x00D\\xc0\\x07\\xc0\\x11\\xc0\\x08\\xc0\\x12\\x00\\x16\\x00\\x13\\x00\\x9d\\xc0\\xa1\\xc0\\x9d\\xc0Q\\x00\\x9c\\xc0\\xa0\\xc0\\x9c\\xc0P\\x00=\\x00\\xc0\\x00<\\x00\\xba\\x005\\x00\\x84\\x00/\\x00\\x96\\x00A\\x00\\x05\\x00\\n\\x00\\xff\\x01\\x00\\x00j\\x00\\x00\\x00\\x0e\\x00\\x0c\\x00\\x00\\t127.0.0\", b'\\x00\\x0b\\x00\\x04\\x03\\x00\\x01\\x02\\x00\\n\\x00\\x0c\\x00\\n\\x00\\x1d\\x00\\x17\\x00\\x1e\\x00\\x19\\x00\\x18\\x00#\\x00\\x00\\x00\\x16\\x00\\x00\\x00\\x17\\x00\\x00\\x00\\r\\x000\\x00.\\x04\\x03\\x05', b'\\x03\\x08']\nBad pipe message: %s [b'\\x08\\x08\\t\\x08\\n\\x08']\nBad pipe message: %s [b'\\x04\\x08\\x05\\x08\\x06\\x04\\x01\\x05\\x01\\x06']\nBad pipe message: %s [b'', b'\\x03\\x03']\nBad pipe message: %s [b'']\nBad pipe message: %s [b'', b'\\x02']\nBad pipe message: %s [b'\\x05\\x02\\x06']\nBad pipe message: %s [b'\\xa8\\xbb\\xe0K\\xd4\\x97F\\xb3\\xd6\\xbaJ\\xfbT`a\\xed\\xb3o\\x00\\x00>\\xc0\\x14\\xc0\\n\\x009\\x008\\x007\\x006\\xc0\\x0f\\xc0\\x05\\x005\\xc0\\x13\\xc0\\t\\x003\\x002\\x001\\x000\\xc0\\x0e\\xc0\\x04\\x00/\\x00\\x9a\\x00\\x99\\x00\\x98\\x00\\x97\\x00\\x96\\x00\\x07\\xc0\\x11\\xc0\\x07\\xc0\\x0c\\xc0\\x02\\x00\\x05\\x00\\x04\\x00\\xff\\x02\\x01\\x00\\x00C\\x00']\nBad pipe message: %s [b'\\x02\\t\\xf1V\\xe7H\\xba\\t\\x8b\\x02\\x92eNPf}\\xa2\\x10\\x00\\x00>\\xc0\\x14\\xc0\\n\\x009\\x008\\x007\\x006\\xc0\\x0f\\xc0\\x05\\x005\\xc0\\x13\\xc0\\t\\x003\\x002\\x001\\x000\\xc0\\x0e\\xc0\\x04']\nBad pipe message: %s [b'W\\x18\\x11B\\x14\\xe2!\\xe8\\xcb']\nBad pipe message: %s [b'\\xde\\xfd\\xf6\\xe8\\xb7\\x0e\\x1d\\x00\\x00\\xa2\\xc0\\x14\\xc0\\n\\x009\\x008\\x007\\x006\\x00\\x88\\x00\\x87\\x00\\x86\\x00\\x85\\xc0\\x19\\x00:\\x00\\x89\\xc0\\x0f\\xc0\\x05\\x00', b'\\x84\\xc0\\x13\\xc0\\t\\x003\\x002\\x001\\x000\\x00\\x9a\\x00\\x99\\x00\\x98\\x00\\x97\\x00E\\x00D\\x00C\\x00B\\xc0\\x18\\x004\\x00\\x9b\\x00F\\xc0\\x0e\\xc0\\x04\\x00/\\x00\\x96\\x00A\\x00\\x07\\xc0\\x11\\xc0']\nBad pipe message: %s [b'\\x16\\x00\\x18\\xc0\\x0c\\xc0']\nBad pipe message: %s [b'\\x05']\nBad pipe message: %s [b\"\\xfd\\x92\\x15v\\xdd\\xf8\\x99+\\x9b\\x1d\\xd7h\\n\\xfc\\x07\\x07\\xa6~\\x00\\x00\\xf4\\xc00\\xc0,\\xc0(\\xc0$\\xc0\\x14\\xc0\\n\\x00\\xa5\\x00\\xa3\\x00\\xa1\\x00\\x9f\\x00k\\x00j\\x00i\\x00h\\x009\\x008\\x007\\x006\\x00\\x88\\x00\\x87\\x00\\x86\\x00\\x85\\xc0\\x19\\x00\\xa7\\x00m\\x00:\\x00\\x89\\xc02\\xc0.\\xc0*\\xc0&\\xc0\\x0f\\xc0\\x05\\x00\\x9d\\x00=\\x005\\x00\\x84\\xc0/\\xc0+\\xc0'\\xc0#\\xc0\\x13\\xc0\\t\\x00\\xa4\\x00\\xa2\\x00\\xa0\\x00\\x9e\\x00g\\x00@\\x00?\\x00>\\x003\\x002\\x00\", b'0\\x00\\x9a\\x00\\x99\\x00\\x98\\x00\\x97\\x00E\\x00D\\x00C\\x00B\\xc0\\x18\\x00\\xa6\\x00l\\x004\\x00\\x9b\\x00F\\xc01\\xc0-\\xc0)\\xc0%\\xc0\\x0e\\xc0\\x04\\x00\\x9c\\x00<\\x00/\\x00']\nBad pipe message: %s [b'A\\x00\\x07\\xc0\\x11\\xc0\\x07\\xc0\\x16\\x00\\x18\\xc0\\x0c\\xc0\\x02\\x00\\x05\\x00\\x04\\xc0\\x12\\xc0\\x08\\x00\\x16\\x00\\x13\\x00\\x10\\x00\\r\\xc0\\x17\\x00\\x1b\\xc0\\r\\xc0\\x03\\x00\\n\\x00\\x15\\x00\\x12\\x00\\x0f\\x00\\x0c\\x00\\x1a\\x00\\t\\x00\\x14\\x00\\x11\\x00\\x19\\x00\\x08\\x00\\x06\\x00\\x17\\x00\\x03\\xc0\\x10\\xc0\\x06\\xc0\\x15\\xc0\\x0b\\xc0\\x01\\x00;\\x00\\x02\\x00\\x01\\x00\\xff\\x02\\x01\\x00\\x00g\\x00\\x00\\x00\\x0e\\x00\\x0c\\x00\\x00\\t127.0.0.1\\x00\\x0b\\x00\\x04\\x03\\x00\\x01\\x02\\x00\\n\\x00\\x1c\\x00\\x1a\\x00\\x17\\x00\\x19\\x00\\x1c\\x00\\x1b\\x00\\x18\\x00\\x1a\\x00\\x16\\x00\\x0e\\x00\\r\\x00\\x0b\\x00\\x0c\\x00\\t\\x00\\n\\x00']\nBad pipe message: %s [b'\\x00\\x00\\r\\x00 \\x00\\x1e\\x06\\x01\\x06\\x02\\x06\\x03\\x05\\x01\\x05\\x02\\x05\\x03\\x04\\x01\\x04\\x02\\x04\\x03\\x03\\x01\\x03\\x02\\x03\\x03\\x02\\x01\\x02']\nBad pipe message: %s [b'\\x03']\n"
+        }
+      ],
+      "execution_count": 21,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Stop Tensorboard\n",
+        "\n",
+        "When you're done, make sure to call the `stop()` method of the Tensorboard object, or it will stay running even after your job completes."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tb.stop()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Finale\n",
+        "\n",
+        "If you've paid close attention, you'll have noticed that we've been saving the run objects in an array as we went along. We can start a Tensorboard instance that combines all of these run objects into a single process. This way, you can compare historical runs. You can even do this with live runs; if you made some of those previous runs longer via the `--max_steps` parameter, they might still be running, and you'll see them live in this instance as well."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# The Tensorboard constructor takes an array of runs...\n",
+        "# and it turns out that we have been building one of those all along.\n",
+        "tb = Tensorboard(runs)\n",
+        "\n",
+        "# If successful, start() returns a string with the URI of the instance.\n",
+        "tb.start()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "## Stop Tensorboard\n",
+        "\n",
+        "As you might already know, make sure to call the `stop()` method of the Tensorboard object, or it will stay running (until you kill the kernel associated with this notebook, at least)."
+      ],
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "tb.stop()"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "vscode": {
+          "languageId": "python"
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "index_order": 3,
+    "exclude_from_index": false,
+    "task": "Run a TensorFlow job and view its Tensorboard output live",
+    "deployment": [
+      "None"
+    ],
+    "authors": [
+      {
+        "name": "roastala"
+      }
+    ],
+    "kernel_info": {
+      "name": "azureml_py38_pt_tf"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.5",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "compute": [
+      "Local",
+      "DSVM",
+      "AML Compute"
+    ],
+    "kernelspec": {
+      "name": "azureml_py38_pt_tf",
+      "language": "python",
+      "display_name": "Python 3.8 - Pytorch and Tensorflow"
+    },
+    "tags": [
+      "None"
+    ],
+    "interpreter": {
+      "hash": "9f0194299e911b6a22f0cd3d1c9a66c991d39f48b249be23f24104e40900e329"
+    },
+    "datasets": [
+      "None"
+    ],
+    "categories": [
+      "how-to-use-azureml",
+      "track-and-monitor-experiments",
+      "tensorboard"
+    ],
+    "category": "training",
+    "framework": [
+      "TensorFlow"
+    ],
+    "friendly_name": "Tensorboard integration with run history",
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}
