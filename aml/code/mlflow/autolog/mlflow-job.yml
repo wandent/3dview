@@ -1,0 +1,7 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: autolog-sklearn
+command:  pip install -r requirements.txt  &&  mlflow run .
+code: code
+environment:
+  image: library/python:latest
+compute: azureml:cpu-cluster
