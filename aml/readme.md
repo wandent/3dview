@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Azure Machine Learning
 
 ## CI/CD Automation
@@ -100,7 +99,6 @@ az login --tenant 5b6f6241-9a57-4be4-8e50-1dfa72e79a57
 
 
 
-=======
 # Azure Machine Learning
 
 ## CI/CD Automation
@@ -200,5 +198,4 @@ az login --tenant 5b6f6241-9a57-4be4-8e50-1dfa72e79a57
 
 
 
->>>>>>> 671e375fd7114ea4b98f95f5e781d64f4cb3731d
 ## References
