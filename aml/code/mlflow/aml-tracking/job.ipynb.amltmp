@@ -1,0 +1,63 @@
+{
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "!az ml job create -f mlflow-job.yml "
+      ],
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": "\u001b[36mCommand group 'ml job' is in preview and under development. Reference and support levels: https://aka.ms/CLI_refstatus\u001b[0m\n\u001b[32mUploading src (0.0 MBs): 100%|███████████| 2824/2824 [00:00<00:00, 47278.06it/s]\u001b[0m\n\u001b[39m\n\n{\n  \"code\": \"/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourceGroups/rg-dev-geog-eastus/providers/Microsoft.MachineLearningServices/workspaces/mlw-dev-geog-01/codes/d07fc379-dd0c-48a7-a71d-a07db6e41495/versions/1\",\n  \"command\": \"pip install mlflow azureml-mlflow  &&  python train.py\",\n  \"compute\": \"azureml:cpu-cluster\",\n  \"creation_context\": {\n    \"created_at\": \"2022-04-14T18:57:28.383564+00:00\",\n    \"created_by\": \"Wandenkolk Tinoco Neto\",\n    \"created_by_type\": \"User\"\n  },\n  \"display_name\": \"serene_pen_gh526lks8h\",\n  \"environment\": \"azureml:CliV2AnonymousEnvironment:2e21d533-15fb-497d-a21d-aa08c036a305\",\n  \"environment_variables\": {},\n  \"experiment_name\": \"job_experiment_with_mlflow\",\n  \"id\": \"azureml:/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourceGroups/rg-dev-geog-eastus/providers/Microsoft.MachineLearningServices/workspaces/mlw-dev-geog-01/jobs/serene_pen_gh526lks8h\",\n  \"inputs\": {},\n  \"name\": \"serene_pen_gh526lks8h\",\n  \"outputs\": {\n    \"default\": {\n      \"mode\": \"rw_mount\",\n      \"path\": \"azureml://datastores/workspaceartifactstore/ExperimentRun/dcid.serene_pen_gh526lks8h\",\n      \"type\": \"uri_folder\"\n    }\n  },\n  \"parameters\": {},\n  \"properties\": {\n    \"ContentSnapshotId\": \"f86c29c6-948b-4f72-845f-20a081864af1\",\n    \"_azureml.ComputeTargetType\": \"amlctrain\",\n    \"azureml.git.dirty\": \"True\",\n    \"mlflow.source.git.branch\": \"main\",\n    \"mlflow.source.git.commit\": \"1c8c637fe2ab2f091c4eeeff2484edc2fc9d7e05\",\n    \"mlflow.source.git.repoURL\": \"https://github.com/wandent/3dview.git\"\n  },\n  \"resourceGroup\": \"rg-dev-geog-eastus\",\n  \"resources\": {\n    \"instance_count\": 1,\n    \"properties\": {}\n  },\n  \"services\": {\n    \"Studio\": {\n      \"endpoint\": \"https://ml.azure.com/runs/serene_pen_gh526lks8h?wsid=/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourcegroups/rg-dev-geog-eastus/workspaces/mlw-dev-geog-01&tid=5b6f6241-9a57-4be4-8e50-1dfa72e79a57\",\n      \"job_service_type\": \"Studio\"\n    },\n    \"Tracking\": {\n      \"endpoint\": \"azureml://eastus.api.azureml.ms/mlflow/v1.0/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourceGroups/rg-dev-geog-eastus/providers/Microsoft.MachineLearningServices/workspaces/mlw-dev-geog-01?\",\n      \"job_service_type\": \"Tracking\"\n    }\n  },\n  \"status\": \"Starting\",\n  \"tags\": {},\n  \"type\": \"command\"\n}\n\u001b[0m"
+        }
+      ],
+      "execution_count": 1,
+      "metadata": {}
+    },
+    {
+      "cell_type": "code",
+      "source": [],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "jupyter": {
+          "source_hidden": false,
+          "outputs_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "kernelspec": {
+      "name": "python38-azureml",
+      "language": "python",
+      "display_name": "Python 3.8 - AzureML"
+    },
+    "language_info": {
+      "name": "python",
+      "version": "3.8.5",
+      "mimetype": "text/x-python",
+      "codemirror_mode": {
+        "name": "ipython",
+        "version": 3
+      },
+      "pygments_lexer": "ipython3",
+      "nbconvert_exporter": "python",
+      "file_extension": ".py"
+    },
+    "kernel_info": {
+      "name": "python38-azureml"
+    },
+    "nteract": {
+      "version": "nteract-front-end@1.0.0"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 2
+}

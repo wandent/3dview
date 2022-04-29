@@ -1,0 +1,8 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: mlflow-example
+command: pip install -U mlflow && mlflow run .
+code: mlflow-example
+environment:
+  image: library/python:latest
+#compute: azureml:cpu-cluster
+compute: local

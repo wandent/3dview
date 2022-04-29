@@ -3,97 +3,136 @@
     {
       "cell_type": "code",
       "source": [
-        "import mlflow\r\n",
-        "\r\n",
-        "## Construct AzureML MLFLOW TRACKING URI\r\n",
-        "def get_azureml_mlflow_tracking_uri(region, subscription_id, resource_group, workspace):\r\n",
-        "    return \"azureml://{}.api.azureml.ms/mlflow/v1.0/subscriptions/{}/resourceGroups/{}/providers/Microsoft.MachineLearningServices/workspaces/{}\".format(region, subscription_id, resource_group, workspace)\r\n",
-        "\r\n",
-        "region='eastus' ## example: westus\r\n",
-        "subscription_id = '062bbb35-45d7-40c6-937f-a43ab3667b0f' ## example: 11111111-1111-1111-1111-111111111111\r\n",
-        "resource_group = 'rg-dev-geog-eastus' ## example: myresourcegroup\r\n",
-        "workspace = 'mlw-dev-geog-01' ## example: myworkspacename\r\n",
-        "\r\n",
-        "MLFLOW_TRACKING_URI = get_azureml_mlflow_tracking_uri(region, subscription_id, resource_group, workspace)\r\n",
-        "\r\n",
-        "## Set the MLFLOW TRACKING URI\r\n",
-        "mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)\r\n",
-        "\r\n",
-        "## Make sure the MLflow URI looks something like this: \r\n",
-        "## azureml://<REGION>.api.azureml.ms/mlflow/v1.0/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.MachineLearningServices/workspaces/<AML_WORKSPACE_NAME>\r\n",
-        "\r\n",
-        "print(\"MLFlow Tracking URI:\", MLFLOW_TRACKING_URI)\r\n"
+        "!pip install -U mlflow\n",
+        "!pip install -U azureml-mlflow"
       ],
       "outputs": [
         {
           "output_type": "stream",
           "name": "stdout",
-          "text": "MLFlow Tracking URI: azureml://eastus.api.azureml.ms/mlflow/v1.0/subscriptions/062bbb35-45d7-40c6-937f-a43ab3667b0f/resourceGroups/rg-dev-geog-eastus/providers/Microsoft.MachineLearningServices/workspaces/mlw-dev-geog-01\n"
+          "text": "/home/azureuser/.local/lib/python2.7/site-packages/OpenSSL/crypto.py:14: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support for it is now deprecated in cryptography, and will be removed in the next release.\n  from cryptography import utils, x509\nCollecting mlflow\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/d8/31/2e7b4a777e59c96e55afadd5b6beb61178b50328d26304e513bceb448f61/mlflow-1.7.2-py2-none-any.whl\nCollecting simplejson (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/5c/e8/f126464f75ceb477f4daeee52bfc9d1a055bca88b31492136cd86b4608d4/simplejson-3.17.6-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting entrypoints (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/ac/c6/44694103f8c221443ee6b0041f69e2740d89a25641e62fb4f2ee568f2f9c/entrypoints-0.3-py2.py3-none-any.whl\nCollecting click>=7.0 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/d2/3d/fa76db83bf75c4f8d338c2fd15c8d33fdd7ad23a9b5e57eb6c5de26b430e/click-7.1.2-py2.py3-none-any.whl\nCollecting numpy (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/3a/5f/47e578b3ae79e2624e205445ab77a1848acdaa2929a00eeef6b16eaaeb20/numpy-1.16.6-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting gitpython>=2.1.0 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/7a/c9/6e1aec0893efe66f407d2e14a3daba73dbb39bbeeb72142b037c4a224d40/GitPython-2.1.15-py2.py3-none-any.whl\nCollecting Flask (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/e8/6d/994208daa354f68fd89a34a8bafbeaab26fda84e7af1e35bdaed02b667e6/Flask-1.1.4-py2.py3-none-any.whl\nCollecting prometheus-flask-exporter (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\nCollecting databricks-cli>=0.8.7 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/72/da/40422480bddd0a30acda0ec6c8839f4cede331b6d985f4c6abb77a75a6c2/databricks_cli-0.16.6-py2-none-any.whl\nCollecting six>=1.10.0 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl\nCollecting docker>=4.0.0 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/c4/22/410313ad554477e87ec406d38d85f810e61ddb0d2fc44e64994857476de9/docker-4.4.4-py2.py3-none-any.whl\nCollecting waitress (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/26/d1/5209fb8c764497a592363c47054436a515b47b8c3e4970ddd7184f088857/waitress-1.4.4-py2.py3-none-any.whl\nCollecting gunicorn (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/5f/54/c15f2c243c19074cbf06ce6c48732d99aec825487f87e57e86e9a22990f2/gunicorn-19.10.0-py2.py3-none-any.whl\nCollecting alembic<=1.4.1 (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\nCollecting pandas (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/db/83/7d4008ffc2988066ff37f6a0bb6d7b60822367dcb36ba5e39aa7801fda54/pandas-0.24.2-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting python-dateutil (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/36/7a/87837f39d0296e723bb9b62bbb257d0355c7f6128853c78955f57342a56d/python_dateutil-2.8.2-py2.py3-none-any.whl\nCollecting cloudpickle (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/ea/0b/189cd3c19faf362ff2df5f301456c6cf8571ef6684644cfdfdbff293825c/cloudpickle-1.3.0-py2.py3-none-any.whl\nCollecting sqlalchemy<=1.3.13 (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\nCollecting gorilla (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/b3/2a/d0eab79744c9bc32b916226e8cb71e275eb1c4e73ed6d682d99f907e5d10/gorilla-0.4.0-py2.py3-none-any.whl\nCollecting protobuf>=3.6.0 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/74/4e/9f3cb458266ef5cdeaa1e72a90b9eda100e3d1803cbd7ec02f0846da83c3/protobuf-3.18.0-py2.py3-none-any.whl\nCollecting sqlparse (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/85/ee/6e821932f413a5c4b76be9c5936e313e4fc626b33f16e027866e1d60f588/sqlparse-0.3.1-py2.py3-none-any.whl\nCollecting querystring-parser (from mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/88/6b/572b2590fd55114118bf08bde63c0a421dcc82d593700f3e2ad89908a8a9/querystring_parser-1.2.4-py2.py3-none-any.whl\nCollecting requests>=2.17.3 (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/2d/61/08076519c80041bc0ffa1a8af0cbd3bf3e2b62af10435d269a9d0f40564d/requests-2.27.1-py2.py3-none-any.whl\nCollecting pyyaml (from mlflow)\n  Using cached https://files.pythonhosted.org/packages/ba/d4/3cf562876e0cda0405e65d351b835077ab13990e5b92912ef2bf1a2280e0/PyYAML-5.4.1-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting configparser>=3.5; python_version == \"2.7\" (from entrypoints->mlflow)\n  Using cached https://files.pythonhosted.org/packages/7a/2a/95ed0501cf5d8709490b1d3a3f9b5cf340da6c433f896bbe9ce08dbe6785/configparser-4.0.2-py2.py3-none-any.whl\nCollecting gitdb2<3,>=2 (from gitpython>=2.1.0->mlflow)\n  Using cached https://files.pythonhosted.org/packages/03/6c/99296f89bad2ef85626e1df9f677acbee8885bb043ad82ad3ed4746d2325/gitdb2-2.0.6-py2.py3-none-any.whl\nCollecting itsdangerous<2.0,>=0.24 (from Flask->mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/76/ae/44b03b253d6fade317f32c24d100b3b35c2239807046a4c953c7b89fa49e/itsdangerous-1.1.0-py2.py3-none-any.whl\nCollecting Werkzeug<2.0,>=0.15 (from Flask->mlflow)\n  Using cached https://files.pythonhosted.org/packages/cc/94/5f7079a0e00bd6863ef8f1da638721e9da21e5bacee597595b318f71d62e/Werkzeug-1.0.1-py2.py3-none-any.whl\nCollecting Jinja2<3.0,>=2.10.1 (from Flask->mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/7e/c2/1eece8c95ddbc9b1aeb64f5783a9e07a286de42191b7204d67b7496ddf35/Jinja2-2.11.3-py2.py3-none-any.whl\nCollecting prometheus-client (from prometheus-flask-exporter->mlflow)\n  Using cached https://files.pythonhosted.org/packages/df/6c/6c5f9404977f8f9caa30c1a408f6cc5ea6e0c1949761f24d0a33239b49c5/prometheus_client-0.12.0-py2.py3-none-any.whl\nCollecting pyjwt>=1.7.0 (from databricks-cli>=0.8.7->mlflow)\n  Using cached https://files.pythonhosted.org/packages/87/8b/6a9f14b5f781697e51259d81657e6048fd31a113229cf346880bb7545565/PyJWT-1.7.1-py2.py3-none-any.whl\nCollecting tabulate>=0.7.7 (from databricks-cli>=0.8.7->mlflow)\nCollecting oauthlib>=3.1.0 (from databricks-cli>=0.8.7->mlflow)\n  Using cached https://files.pythonhosted.org/packages/05/57/ce2e7a8fa7c0afb54a0581b14a65b56e62b5759dbc98e80627142b8a3704/oauthlib-3.1.0-py2.py3-none-any.whl\nCollecting ipaddress>=1.0.16; python_version < \"3.3\" (from docker>=4.0.0->mlflow)\n  Using cached https://files.pythonhosted.org/packages/c2/f8/49697181b1651d8347d24c095ce46c7346c37335ddc7d255833e7cde674d/ipaddress-1.0.23-py2.py3-none-any.whl\nCollecting websocket-client>=0.32.0 (from docker>=4.0.0->mlflow)\n  Using cached https://files.pythonhosted.org/packages/f7/0c/d52a2a63512a613817846d430d16a8fbe5ea56dd889e89c68facf6b91cb6/websocket_client-0.59.0-py2.py3-none-any.whl\nCollecting backports.ssl-match-hostname>=3.5; python_version < \"3.5\" (from docker>=4.0.0->mlflow)\nCollecting python-editor>=0.3 (from alembic<=1.4.1->mlflow)\n  Using cached https://files.pythonhosted.org/packages/55/a0/3c0ba1c10f2ca381645dd46cb7afbb73fddc8de9f957e1f9e726a846eabc/python_editor-1.0.4-py2-none-any.whl\nCollecting Mako (from alembic<=1.4.1->mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/b4/4d/e03d08f16ee10e688bde9016bc80af8b78c7f36a8b37c7194da48f72207e/Mako-1.1.6-py2.py3-none-any.whl\nCollecting pytz>=2011k (from pandas->mlflow)\n  Using cached https://files.pythonhosted.org/packages/60/2e/dec1cc18c51b8df33c7c4d0a321b084cf38e1733b98f9d15018880fb4970/pytz-2022.1-py2.py3-none-any.whl\nCollecting idna<3,>=2.5; python_version < \"3\" (from requests>=2.17.3->mlflow)\n  Using cached https://files.pythonhosted.org/packages/a2/38/928ddce2273eaa564f6f50de919327bf3a00f091b5baba8dfa9460f3a8a8/idna-2.10-py2.py3-none-any.whl\nCollecting certifi>=2017.4.17 (from requests>=2.17.3->mlflow)\n  Using cached https://files.pythonhosted.org/packages/37/45/946c02767aabb873146011e665728b680884cd8fe70dde973c640e45b775/certifi-2021.10.8-py2.py3-none-any.whl\nCollecting urllib3<1.27,>=1.21.1 (from requests>=2.17.3->mlflow)\n  Using cached https://files.pythonhosted.org/packages/ec/03/062e6444ce4baf1eac17a6a0ebfe36bb1ad05e1df0e20b110de59c278498/urllib3-1.26.9-py2.py3-none-any.whl\nCollecting chardet<5,>=3.0.2; python_version < \"3\" (from requests>=2.17.3->mlflow)\n  Using cached https://files.pythonhosted.org/packages/19/c7/fa589626997dd07bd87d9269342ccb74b1720384a4d739a1872bd84fbe68/chardet-4.0.0-py2.py3-none-any.whl\nCollecting smmap2>=2.0.0 (from gitdb2<3,>=2->gitpython>=2.1.0->mlflow)\nCollecting MarkupSafe>=0.23 (from Jinja2<3.0,>=2.10.1->Flask->mlflow)\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/fb/40/f3adb7cf24a8012813c5edb20329eb22d5d8e2a0ecf73d21d6b85865da11/MarkupSafe-1.1.1-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting smmap>=3.0.1 (from smmap2>=2.0.0->gitdb2<3,>=2->gitpython>=2.1.0->mlflow)\n  Using cached https://files.pythonhosted.org/packages/d5/1e/6130925131f639b2acde0f7f18b73e33ce082ff2d90783c436b52040af5a/smmap-3.0.5-py2.py3-none-any.whl\nInstalling collected packages: simplejson, configparser, entrypoints, click, numpy, smmap, smmap2, gitdb2, gitpython, itsdangerous, Werkzeug, MarkupSafe, Jinja2, Flask, prometheus-client, prometheus-flask-exporter, pyjwt, tabulate, six, oauthlib, idna, certifi, urllib3, chardet, requests, databricks-cli, ipaddress, websocket-client, backports.ssl-match-hostname, docker, waitress, gunicorn, python-editor, Mako, python-dateutil, sqlalchemy, alembic, pytz, pandas, cloudpickle, gorilla, protobuf, sqlparse, querystring-parser, pyyaml, mlflow\n/home/azureuser/.local/lib/python2.7/site-packages/OpenSSL/crypto.py:14: CryptographyDeprecationWarning: Python 2 is no longer supported by the Python core team. Support for it is now deprecated in cryptography, and will be removed in the next release.\n  from cryptography import utils, x509\nCollecting azureml-mlflow\n\u001b[33m  Cache entry deserialization failed, entry ignored\u001b[0m\n  Using cached https://files.pythonhosted.org/packages/b0/9f/e885e3cdc87f0dc33a41ea28b980654323f3ef970787e58a0b35d43c0b80/azureml_mlflow-1.1.5-py2.py3-none-any.whl\nCollecting azureml-core==1.1.5.* (from azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/12/e4/d19fc371de9bd3055ef971cf7c5c305ed71701a0c8c5224a38dcc2110911/azureml_core-1.1.5.7-py2.py3-none-any.whl\nCollecting jsonpickle (from azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/21/55/d9f469f57ca9c8de8490d155c2d121edafade8ab7405015df0f1daf89aa1/jsonpickle-2.1.0-py2.py3-none-any.whl\nCollecting mlflow>=1.0.0 (from azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/d8/31/2e7b4a777e59c96e55afadd5b6beb61178b50328d26304e513bceb448f61/mlflow-1.7.2-py2-none-any.whl\nCollecting python-dateutil>=2.7.3 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/36/7a/87837f39d0296e723bb9b62bbb257d0355c7f6128853c78955f57342a56d/python_dateutil-2.8.2-py2.py3-none-any.whl\nCollecting six>=1.11.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/d9/5a/e7c31adbe875f2abbb91bd84cf2dc52d792b5a01506781dbcf25c91daf11/six-1.16.0-py2.py3-none-any.whl\nCollecting contextlib2 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/85/60/370352f7ef6aa96c52fb001831622f50f923c1d575427d021b8ab3311236/contextlib2-0.6.0.post1-py2.py3-none-any.whl\nCollecting ndg-httpsclient (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/bf/b2/26470fde7ff55169df8e071fb42cb1f83e22bd952520ab2b5c5a5edc2acd/ndg_httpsclient-0.5.1-py2-none-any.whl\nCollecting SecretStorage (from azureml-core==1.1.5.*->azureml-mlflow)\nCollecting urllib3>=1.23 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/ec/03/062e6444ce4baf1eac17a6a0ebfe36bb1ad05e1df0e20b110de59c278498/urllib3-1.26.9-py2.py3-none-any.whl\nCollecting jmespath (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/07/cb/5f001272b6faeb23c1c9e0acc04d48eaaf5c862c17709d20e3469c6e0139/jmespath-0.10.0-py2.py3-none-any.whl\nCollecting pyopenssl (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/85/3a/fe3c98435856a1ed798977981f3da82d2685cf9df97e4d9546340d2b83db/pyOpenSSL-21.0.0-py2.py3-none-any.whl\nCollecting msrestazure>=0.4.33 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/5e/3a/7adb08fd2f0ee6fdfd03685fac38477b64f184943dcf6ea0cbffb205f22d/msrestazure-0.6.4-py2.py3-none-any.whl\nCollecting requests>=2.19.1 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/2d/61/08076519c80041bc0ffa1a8af0cbd3bf3e2b62af10435d269a9d0f40564d/requests-2.27.1-py2.py3-none-any.whl\nCollecting adal>=1.2.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/49/8d/58008a9a86075827f99aa8bb75d8db515bb9c34654f95e647cda31987db7/adal-1.2.7-py2.py3-none-any.whl\nCollecting futures; python_version < \"3.5\" (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/d8/a6/f46ae3f1da0cd4361c344888f59ec2f5785e69c872e175a748ef6071cdb5/futures-3.3.0-py2-none-any.whl\nCollecting backports.tempfile (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/b4/5c/077f910632476281428fe254807952eb47ca78e720d059a46178c541e669/backports.tempfile-1.0-py2.py3-none-any.whl\nCollecting pytz (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/60/2e/dec1cc18c51b8df33c7c4d0a321b084cf38e1733b98f9d15018880fb4970/pytz-2022.1-py2.py3-none-any.whl\nCollecting azure-mgmt-keyvault>=0.40.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/49/54/a9494db523d449f02cc079ff99e28b45252c14503ebbe6009603a4731025/azure_mgmt_keyvault-9.3.0-py2.py3-none-any.whl\nCollecting docker (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/c4/22/410313ad554477e87ec406d38d85f810e61ddb0d2fc44e64994857476de9/docker-4.4.4-py2.py3-none-any.whl\nCollecting PyJWT (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/87/8b/6a9f14b5f781697e51259d81657e6048fd31a113229cf346880bb7545565/PyJWT-1.7.1-py2.py3-none-any.whl\nCollecting azure-mgmt-authorization>=0.40.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/f7/fb/11bdb372c72a30082be188a75aabcbcc5d4d8d8909b9ae3ac0ec3a203933/azure_mgmt_authorization-2.0.0-py2.py3-none-any.whl\nCollecting azure-common>=1.1.12 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/62/55/7f118b9c1b23ec15ca05d15a578d8207aa1706bc6f7c87218efffbbf875d/azure_common-1.1.28-py2.py3-none-any.whl\nCollecting azure-mgmt-storage>=1.5.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/3e/c6/d49549f6530eb8d227c1c3fd80759d0049c9a032d00311d7df0a666e06a7/azure_mgmt_storage-19.0.0-py2.py3-none-any.whl\nCollecting azure-mgmt-containerregistry>=2.0.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/4c/15/a20fe04b4e6d45a168e5aa6c60209fc51d9599325b89144c43c644de7510/azure_mgmt_containerregistry-8.2.0-py2.py3-none-any.whl\nCollecting cryptography!=1.9,!=2.0.*,!=2.1.*,!=2.2.* (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/86/41/44173175d378c9e3a73294bb33c73725f7726def5ce267af6bd11b72eb23/cryptography-3.3.2-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting azure-graphrbac>=0.40.0 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/3e/93/02056aca45162f9fc275d1eaad12a2a07ef92375afb48eabddc4134b8315/azure_graphrbac-0.61.1-py2.py3-none-any.whl\nCollecting pathspec (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/42/ba/a9d64c7bcbc7e3e8e5f93a52721b377e994c22d16196e2b0f1236774353a/pathspec-0.9.0-py2.py3-none-any.whl\nCollecting msrest>=0.5.1 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/e8/cc/6c96bfb3d3cf4c3bdedfa6b46503223f4c2a4fa388377697e0f8082a4fed/msrest-0.6.21-py2.py3-none-any.whl\nCollecting ruamel.yaml<=0.15.89,>=0.15.35 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/75/e0/0c14e0fda4ae6487d76e303c2f89d64d43c2032a224a993d4e7e7d724b3b/ruamel.yaml-0.15.89-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting azure-mgmt-resource<9.0.0,>=1.2.1 (from azureml-core==1.1.5.*->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/35/b3/87b49dfb82f8868b47ec6da76812cd2549db65c87474f6bcfc458b2a7999/azure_mgmt_resource-8.0.1-py2.py3-none-any.whl\nCollecting importlib-metadata; python_version < \"3.8\" (from jsonpickle->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/cf/b4/877779cd7b5a15536ecbe0655cfb35a0de0ede6d888151fd7356d278c47d/importlib_metadata-2.1.3-py2.py3-none-any.whl\nCollecting simplejson (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/5c/e8/f126464f75ceb477f4daeee52bfc9d1a055bca88b31492136cd86b4608d4/simplejson-3.17.6-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting entrypoints (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/ac/c6/44694103f8c221443ee6b0041f69e2740d89a25641e62fb4f2ee568f2f9c/entrypoints-0.3-py2.py3-none-any.whl\nCollecting click>=7.0 (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/d2/3d/fa76db83bf75c4f8d338c2fd15c8d33fdd7ad23a9b5e57eb6c5de26b430e/click-7.1.2-py2.py3-none-any.whl\nCollecting numpy (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/3a/5f/47e578b3ae79e2624e205445ab77a1848acdaa2929a00eeef6b16eaaeb20/numpy-1.16.6-cp27-cp27mu-manylinux1_x86_64.whl\nCollecting gitpython>=2.1.0 (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/7a/c9/6e1aec0893efe66f407d2e14a3daba73dbb39bbeeb72142b037c4a224d40/GitPython-2.1.15-py2.py3-none-any.whl\nCollecting Flask (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/e8/6d/994208daa354f68fd89a34a8bafbeaab26fda84e7af1e35bdaed02b667e6/Flask-1.1.4-py2.py3-none-any.whl\nCollecting prometheus-flask-exporter (from mlflow>=1.0.0->azureml-mlflow)\nCollecting databricks-cli>=0.8.7 (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/72/da/40422480bddd0a30acda0ec6c8839f4cede331b6d985f4c6abb77a75a6c2/databricks_cli-0.16.6-py2-none-any.whl\nCollecting waitress (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/26/d1/5209fb8c764497a592363c47054436a515b47b8c3e4970ddd7184f088857/waitress-1.4.4-py2.py3-none-any.whl\nCollecting gunicorn (from mlflow>=1.0.0->azureml-mlflow)\n  Using cached https://files.pythonhosted.org/packages/5f/54/c15f2c243c19074cbf06ce6c48732d99aec825487f87e57e86e9a22990f2/gunicorn-19.10.0-py2.py3-none-any.whl\nCollecting alembic<=1.4.1 (from mlflow>=1.0.0->azureml-mlflow)\n"
         }
       ],
-      "execution_count": 2,
-      "metadata": {
-        "gather": {
-          "logged": 1649855123350
-        }
-      }
+      "execution_count": 1,
+      "metadata": {}
     },
     {
       "cell_type": "code",
       "source": [
-        "experiment_name = 'experiment_with_mlflow_python'\r\n",
-        "mlflow.set_experiment(experiment_name)"
-      ],
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stderr",
-          "text": "2022/04/13 13:05:34 INFO mlflow.tracking.fluent: Experiment with name 'experiment_with_mlflow_python' does not exist. Creating a new experiment.\n"
-        },
-        {
-          "output_type": "execute_result",
-          "execution_count": 3,
-          "data": {
-            "text/plain": "<Experiment: artifact_location='', experiment_id='8a314941-9201-4060-b57d-36b0e8e1f4c2', lifecycle_stage='active', name='experiment_with_mlflow_python', tags={}>"
-          },
-          "metadata": {}
-        }
-      ],
-      "execution_count": 3,
-      "metadata": {
-        "jupyter": {
-          "source_hidden": false,
-          "outputs_hidden": false
-        },
-        "nteract": {
-          "transient": {
-            "deleting": false
-          }
-        },
-        "gather": {
-          "logged": 1649855136196
-        }
-      }
-    },
-    {
-      "cell_type": "code",
-      "source": [
-        "import os\r\n",
-        "from random import random\r\n",
-        "import mlflow\r\n",
-        "\r\n",
-        "with mlflow.start_run() as mlflow_run:\r\n",
-        "    mlflow.log_param(\"hello_param\", \"world\")\r\n",
-        "    mlflow.log_metric(\"hello_metric\", random())\r\n",
-        "    os.system(f\"echo 'hello world' > helloworld.txt\")\r\n",
-        "    mlflow.log_artifact(\"helloworld.txt\")\r\n"
+        "import mlflow\n",
+        "\n",
+        "## Construct AzureML MLFLOW TRACKING URI\n",
+        "def get_azureml_mlflow_tracking_uri(region, subscription_id, resource_group, workspace):\n",
+        "    return \"azureml://{}.api.azureml.ms/mlflow/v1.0/subscriptions/{}/resourceGroups/{}/providers/Microsoft.MachineLearningServices/workspaces/{}\".format(region, subscription_id, resource_group, workspace)\n",
+        "\n",
+        "region='eastus' ## example: westus\n",
+        "subscription_id = '062bbb35-45d7-40c6-937f-a43ab3667b0f' ## example: 11111111-1111-1111-1111-111111111111\n",
+        "resource_group = 'rg-dev-geog-eastus' ## example: myresourcegroup\n",
+        "workspace = 'mlw-dev-geog-01' ## example: myworkspacename\n",
+        "\n",
+        "MLFLOW_TRACKING_URI = get_azureml_mlflow_tracking_uri(region, subscription_id, resource_group, workspace)\n",
+        "\n",
+        "#log data locally when running outside azureml\n",
+        "#MLFLOW_TRACKING_URI =\"\"\n",
+        "\n",
+        "## Set the MLFLOW TRACKING URI\n",
+        "\n",
+        "mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)\n",
+        "\n",
+        "## Make sure the MLflow URI looks something like this: \n",
+        "## azureml://<REGION>.api.azureml.ms/mlflow/v1.0/subscriptions/<SUBSCRIPTION_ID>/resourceGroups/<RESOURCE_GROUP>/providers/Microsoft.MachineLearningServices/workspaces/<AML_WORKSPACE_NAME>\n",
+        "\n",
+        "print(\"MLFlow Tracking URI:\", MLFLOW_TRACKING_URI)\n"
       ],
       "outputs": [],
-      "execution_count": 4,
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1649941966320
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "experiment_name = 'experiment_with_mlflow_python'\n",
+        "mlflow.set_experiment(experiment_name)"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1649941974427
+        },
+        "jupyter": {
+          "outputs_hidden": false,
+          "source_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import os\n",
+        "from random import random\n",
+        "import mlflow\n",
+        "\n",
+        "with mlflow.start_run() as mlflow_run:\n",
+        "    mlflow.log_param(\"hello_param\", \"world\")\n",
+        "    mlflow.log_metric(\"hello_metric\", random())\n",
+        "    os.system(f\"echo 'hello world' > helloworld.txt\")\n",
+        "    mlflow.log_artifact(\"helloworld.txt\")\n"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1649941984319
+        },
+        "jupyter": {
+          "outputs_hidden": false,
+          "source_hidden": false
+        },
+        "nteract": {
+          "transient": {
+            "deleting": false
+          }
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# Read metrics after the training\n",
+        "from mlflow.entities import ViewType\n",
+        "from mlflow.tracking import MlflowClient\n",
+        "\n",
+        "# Retrieve run ID for the last run experiement\n",
+        "current_experiment=mlflow.get_experiment_by_name(experiment_name)\n",
+        "runs = mlflow.search_runs(experiment_ids=current_experiment.experiment_id, run_view_type=ViewType.ALL)\n",
+        "run_id = runs.tail(1)[\"run_id\"].tolist()[0]\n",
+        "\n",
+        "# Use MlFlow to retrieve the run that was just completed\n",
+        "client = MlflowClient()\n",
+        "finished_mlflow_run = MlflowClient().get_run(run_id)\n",
+        "\n",
+        "metrics = finished_mlflow_run.data.metrics\n",
+        "tags = finished_mlflow_run.data.tags\n",
+        "params = finished_mlflow_run.data.params\n",
+        "\n",
+        "print(metrics,tags,params)"
+      ],
+      "outputs": [],
+      "execution_count": null,
       "metadata": {
         "jupyter": {
-          "source_hidden": false,
-          "outputs_hidden": false
+          "outputs_hidden": false,
+          "source_hidden": false
         },
         "nteract": {
           "transient": {
@@ -101,7 +140,34 @@
           }
         },
         "gather": {
-          "logged": 1649855147143
+          "logged": 1649942006312
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "# retrieve artifacts with mlflow\n",
+        "client.list_artifacts(run_id)"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1649942032306
+        }
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "client.download_artifacts(run_id, \"helloworld.txt\", \".\")"
+      ],
+      "outputs": [],
+      "execution_count": null,
+      "metadata": {
+        "gather": {
+          "logged": 1649942040836
         }
       }
     },
@@ -110,20 +176,16 @@
       "source": [],
       "outputs": [],
       "execution_count": null,
-      "metadata": {
-        "jupyter": {
-          "source_hidden": false,
-          "outputs_hidden": false
-        },
-        "nteract": {
-          "transient": {
-            "deleting": false
-          }
-        }
-      }
+      "metadata": {}
     }
   ],
   "metadata": {
+    "interpreter": {
+      "hash": "d4d1e4263499bec80672ea0156c357c1ee493ec2b1c70f0acce89fc37c4a6abe"
+    },
+    "kernel_info": {
+      "name": "python38-azureml"
+    },
     "kernelspec": {
       "name": "python38-azureml",
       "language": "python",
@@ -141,11 +203,15 @@
       "nbconvert_exporter": "python",
       "file_extension": ".py"
     },
-    "kernel_info": {
-      "name": "python38-azureml"
-    },
     "nteract": {
       "version": "nteract-front-end@1.0.0"
+    },
+    "microsoft": {
+      "host": {
+        "AzureML": {
+          "notebookHasBeenCompleted": true
+        }
+      }
     }
   },
   "nbformat": 4,

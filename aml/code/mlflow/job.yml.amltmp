@@ -1,0 +1,7 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
+experiment_name: autolog-tf
+command:  pip install mlflow && mlflow run . --no-conda
+code: tf2
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu:14
+#  image: library/python:latest
+compute: azureml:cpu-cluster

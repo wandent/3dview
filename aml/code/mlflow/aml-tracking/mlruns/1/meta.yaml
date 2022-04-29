@@ -1,4 +1,0 @@
-artifact_location: file:///workspaces/3dview/aml/code/mlflow/aml-tracking/mlruns/1
-experiment_id: '1'
-lifecycle_stage: active
-name: experiment_with_mlflow_python
